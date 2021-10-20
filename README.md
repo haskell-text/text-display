@@ -70,7 +70,7 @@ express and enforce the domain.
 
 An arbitrary ByteStrings cannot be safely converted to text without prior knowledge of its encoding.
 As such, in order to avoid dangerously blind conversions, it is recommended to use a specialised
-function such as `decodeUtf8` or `decodeUtf8Strict` if you wish to turn a UTF8-encoded ByteString
+function such as `decodeUtf8'` or `decodeUtf8Strict` if you wish to turn a UTF8-encoded ByteString
 to Text.
 
 [Show]: https://hackage.haskell.org/package/base/docs/Text-Show.html#v:Show

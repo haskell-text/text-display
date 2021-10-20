@@ -30,7 +30,6 @@ module Data.Text.Display
 import Control.Exception hiding (TypeError)
 import Data.ByteString
 import qualified Data.ByteString.Lazy as BL
-import Data.Foldable (foldMap')
 import Data.Int
 import Data.Kind
 import Data.List.NonEmpty
@@ -39,6 +38,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Word
 import GHC.TypeLits
+import GHC.Show (showLitString)
 
 -- | A typeclass for user-facing output.
 --
@@ -68,7 +68,7 @@ class Display a where
   -- >   display = T.singleton
   -- >   -- 'displayList' is implemented, so that when the `Display [a]` instance calls 'displayList',
   -- >   -- we end up with a nice string enclosed between double quotes.
-  -- >   displayList cs = "\"" <> foldMap' display cs <> "\""
+  -- >   displayList cs = T.pack $ "\"" <> showLitString cs "\""
   --
   -- > instance Display a => Display [a] where
   -- > -- In this instance, 'display' is defined in terms of 'displayList', which for most types
@@ -114,7 +114,7 @@ type family CannotDisplayBareFunctions :: Constraint where
 -- | 🚫 You should not derive Display for strict ByteStrings!
 --
 -- 💡 Always provide an explicit encoding.
--- Use 'decodeUtf8' or 'decodeUtf8Strict' to convert from UTF-8
+-- Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8
 --
 -- @since 0.0.1.0
 instance CannotDisplayByteStrings => Display ByteString where
@@ -123,7 +123,7 @@ instance CannotDisplayByteStrings => Display ByteString where
 -- | 🚫 You should not derive Display for lazy ByteStrings!
 --
 -- 💡 Always provide an explicit encoding.
--- Use 'decodeUtf8' or 'decodeUtf8Strict' to convert from UTF-8
+-- Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8
 --
 -- @since 0.0.1.0
 instance CannotDisplayByteStrings => Display BL.ByteString where
@@ -133,7 +133,7 @@ type family CannotDisplayByteStrings :: Constraint where
   CannotDisplayByteStrings = TypeError
     ( 'Text "🚫 You should not derive Display for ByteStrings!" ':$$:
       'Text "💡 Always provide an explicit encoding" ':$$:
-      'Text     "Use 'decodeUtf8' or 'decodeUtf8Strict' to convert from UTF-8"
+      'Text     "Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8"
     )
 
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to
@@ -169,10 +169,11 @@ deriving via (ShowInstance Bool) instance Display Bool
 
 -- | @since 0.0.1.0
 instance Display Char where
-  display = T.singleton
+  display '\'' = "'\\''"
+  display c = "'" <> T.singleton c <> "\'"
   -- 'displayList' is overloaded, so that when the @Display [a]@ instance calls 'displayList',
   -- we end up with a nice string enclosed between double quotes.
-  displayList cs = "\"" <> foldMap' display cs <> "\""
+  displayList cs = T.pack $ "\"" <> showLitString cs "\""
 
 -- | Lazy 'TL.Text'
 --
@@ -188,6 +189,9 @@ instance Display Text where
 
 -- | @since 0.0.1.0
 instance Display a => Display [a] where
+  {-# SPECIALISE instance Display [String] #-}
+  {-# SPECIALISE instance Display [Char] #-}
+  {-# SPECIALISE instance Display [Int] #-}
   -- In this instance, 'display' is defined in terms of 'displayList', which for most types
   -- is defined as the default written in the class declaration.
   -- But when @a ~ Char@, there is an explicit implementation that is selected instead, which
@@ -293,5 +297,5 @@ instance (Display a, Display b, Display c, Display d) => Display (a, b, c, d) wh
 -- An arbitrary ByteStrings cannot be safely converted to text without prior knowledge of its encoding.
 --
 -- As such, in order to avoid dangerously blind conversions, it is recommended to use a specialised
--- function such as `decodeUtf8` or `decodeUtf8Strict` if you wish to turn a UTF8-encoded ByteString
+-- function such as `decodeUtf8'` or `decodeUtf8With` if you wish to turn a UTF8-encoded ByteString
 -- to Text.
