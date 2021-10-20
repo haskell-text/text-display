@@ -27,9 +27,10 @@ an existing `Show` that you wish to reuse. In which case, you can piggy-back
 on this instance like this:
 
 ```haskell
+{-# LANGUAGE DerivingVia #-}
 data AutomaticallyDerived = AD
   -- We derive 'Show'
-  deriving stock Show 
+  deriving Show 
   -- We take advantage of the 'Show' instance to derive 'Display' from it
   deriving Display
     via (ShowInstance AutomaticallyDerived) 
