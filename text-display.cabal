@@ -57,3 +57,4 @@ test-suite text-display-test
     , text-display
     , hspec
     , text
+    , should-not-typecheck
