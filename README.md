@@ -38,7 +38,7 @@ data AutomaticallyDerived = AD
 
 ## Design Choices
 
-### A “Lawless Typeclass”
+### A “Lawless Typeclass”[^1]
 
 The `Display` typeclass does not contain any law. This is a controversial choice for some people,
 but the truth is that there are not any laws to ask of the consumer that are not already enforced
@@ -73,6 +73,8 @@ An arbitrary ByteStrings cannot be safely converted to text without prior knowle
 As such, in order to avoid dangerously blind conversions, it is recommended to use a specialised
 function such as `decodeUtf8'` or `decodeUtf8Strict` if you wish to turn a UTF8-encoded ByteString
 to Text.
+
+[^1]: _"mort aux lois, vive l'anarchie"_ - Georges Brassens
 
 [Show]: https://hackage.haskell.org/package/base/docs/Text-Show.html#v:Show
 [CI-badge]: https://img.shields.io/github/workflow/status/Kleidukos/text-display/CI?style=flat-square
