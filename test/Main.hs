@@ -6,6 +6,7 @@
 
 module Main where
 
+import Data.ByteString
 import Data.List.NonEmpty
 import Data.Text (Text)
 import Test.Hspec
@@ -73,4 +74,8 @@ spec = do
       let tuple = (1 :: Int, True, "hahahha" :: String)
       T.unpack (display tuple) `shouldBe` show tuple
     it "Should not compile for a function instance" $
-      (shouldNotTypecheck $ display id) `shouldThrow` anyErrorCall
+      shouldNotTypecheck (display id) `shouldThrow` anyErrorCall
+    it "Should not compile for ByteStrings" $
+      let bs = "badstring" :: ByteString
+       in shouldNotTypecheck (display bs) `shouldThrow` anyErrorCall
+
