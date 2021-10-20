@@ -1,8 +1,10 @@
 {-# LANGUAGE DataKinds #-}
-
 {-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE StrictData #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -29,16 +31,16 @@ module Data.Text.Display
 
 import Control.Exception hiding (TypeError)
 import Data.ByteString
-import qualified Data.ByteString.Lazy as BL
 import Data.Int
 import Data.Kind
 import Data.List.NonEmpty
 import Data.Text (Text)
+import Data.Word
+import GHC.Show (showLitString)
+import GHC.TypeLits
+import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
-import Data.Word
-import GHC.TypeLits
-import GHC.Show (showLitString)
 
 -- | A typeclass for user-facing output.
 --
@@ -88,7 +90,7 @@ class Display a where
   displayList [] = "[]"
   displayList (x:xs) = displayList' xs ("[" <> display x)
     where
-      displayList' :: Display a => [a] -> Text -> Text
+      displayList' :: [a] -> Text -> Text
       displayList' [] acc     = acc <> "]"
       displayList' (y:ys) acc = displayList' ys (acc <> "," <> display y)
 
@@ -203,10 +205,7 @@ instance Display a => Display (NonEmpty a) where
   display (a :| as) = display a <> T.pack " :| " <> display as
 
 -- | @since 0.0.1.0
-instance Display a => Display (Maybe a) where
-  display Nothing  = T.pack "Nothing"
-  display (Just a) = T.pack "Just " <> display a
-
+deriving via (ShowInstance (Maybe a)) instance Show a => Display (Maybe a)
 -- | @since 0.0.1.0
 deriving via (ShowInstance Double) instance Display Double
 

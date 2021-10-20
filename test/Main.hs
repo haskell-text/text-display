@@ -1,6 +1,7 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE DataKinds #-}
 
 module Main where
 
@@ -24,11 +25,10 @@ data ManualType = MT Int
 instance Display ManualType where
   display (MT i) = "MT " <> display i
 
-newtype Opaque a
-  = Opaque a
+data OpaqueType = OpaqueType Int
 
-instance Display (Opaque a) where
-  display = const "<opaque>"
+instance Display OpaqueType where
+  display _ = "<opaque>"
 
 spec :: Spec
 spec = do
@@ -38,17 +38,23 @@ spec = do
     it "Deriving via its own Show instance works" $
       T.unpack (display AD) `shouldBe` show AD
     it "Opaque types stay opaque" $
-      display (Opaque 3 :: Opaque Int) `shouldBe` "<opaque>"
+      display (OpaqueType 3 :: OpaqueType) `shouldBe` "<opaque>"
     it "Manual instance is stays the same" $
       display (MT 32) `shouldBe` "MT 32"
     it "List instance is equivalent to Show" $ do
       let list = [1 .. 5] :: [Int]
+      T.unpack (display list) `shouldBe` show list
+    it "Single-element List instance is equivalent to Show" $ do
+      let list = [1] :: [Int]
       T.unpack (display list) `shouldBe` show list
     it "NonEmpty instance is equivalent to Show" $ do
       let ne = NE.fromList [1 .. 5] :: NonEmpty Int
       T.unpack (display ne) `shouldBe` show ne
     it "Just True instance is equivalent to Show" $ do
       T.unpack (display (Just True)) `shouldBe` show (Just True)
+    it "Nested Maybe instance is equivalent to Show" $ do
+      let nestedMaybe = Just (Just 5) :: Maybe (Maybe Int)
+      T.unpack (display nestedMaybe) `shouldBe` show nestedMaybe
     it "Nothing instance is equivalent to Show" $ do
       T.unpack (display (Nothing @Bool)) `shouldBe` show (Nothing @Bool)
     it "String instance is equivalent to Show" $ do
@@ -64,7 +70,3 @@ spec = do
     it "3-Tuple instance is equivalent to Show" $ do
       let tuple = (1 :: Int, True, "hahahha" :: String)
       T.unpack (display tuple) `shouldBe` show tuple
-
-      -- This test must never compile:
-      -- it "Function instance" $
-      --   display (+)
