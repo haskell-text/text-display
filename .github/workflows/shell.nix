@@ -8,7 +8,6 @@ in with pkgs;
       cabal-install
       hlint
       haskellPackages.apply-refact
-      stylish-haskell
 
       # DB Deps
       postgresql_13
@@ -19,7 +18,6 @@ in with pkgs;
       # Extra
       parallel
       git
-      # mkdocs
       gnumake
     ];
     shellHook = ''

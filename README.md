@@ -1,4 +1,4 @@
-# Display [![CI-badge][CI-badge]][CI-url] ![simple-haskell][simple-haskell]
+# Display [![CI-badge][CI-badge]][CI-url]
 
 _A Typeclass for user-facing output_
 
@@ -6,8 +6,6 @@ _A Typeclass for user-facing output_
 
 The `display` library offers a way for developers to print a textual representation of datatypes that does not
 have to abide by the rules of the [Show typeclass][Show].
-
-If you need some more instances from `base` or 
 
 ## Examples
 
@@ -75,8 +73,6 @@ As such, in order to avoid dangerously blind conversions, it is recommended to u
 function such as `decodeUtf8` or `decodeUtf8Strict` if you wish to turn a UTF8-encoded ByteString
 to Text.
 
-
-[simple-haskell]: https://img.shields.io/badge/Simple-Haskell-purple?style=flat-square
 [Show]: https://hackage.haskell.org/package/base/docs/Text-Show.html#v:Show
 [CI-badge]: https://img.shields.io/github/workflow/status/Kleidukos/display/CI?style=flat-square
 [CI-url]: https://github.com/Kleidukos/display/actions

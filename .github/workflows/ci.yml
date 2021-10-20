@@ -73,9 +73,6 @@ jobs:
     - name: Running hlint
       run: nix-shell --pure -I ${{ env.NIX_PATH }} --argstr ghcVersion ${{env.GHC}} --run './.github/workflows/hlint-runner.sh' .github/workflows/shell.nix
 
-    - name: Running stylish-haskell
-      run: nix-shell --pure -I ${{ env.NIX_PATH }} --argstr ghcVersion ${{env.GHC}} --run './.github/workflows/stylish-haskell-runner.sh' .github/workflows/shell.nix
-
     - name: Build
       run: nix-shell --pure -I ${{ env.NIX_PATH }} --argstr ghcVersion ${{env.GHC}} --run 'make build' .github/workflows/shell.nix
 

@@ -1,14 +1,14 @@
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE TypeApplications #-}
+
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Main where
 
+import Data.List.NonEmpty
+import qualified Data.List.NonEmpty as NE
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.List.NonEmpty as NE
-import Data.List.NonEmpty
 import Test.Hspec
 
 import Data.Text.Display
@@ -16,8 +16,7 @@ import Data.Text.Display
 main :: IO ()
 main = hspec spec
 
-data AutomaticallyDerived = AD
-  deriving stock (Show)
+data AutomaticallyDerived = AD deriving stock (Show)
   deriving (Display)
     via (ShowInstance AutomaticallyDerived)
 

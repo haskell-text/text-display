@@ -1,5 +1,5 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DerivingStrategies #-}
+
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -30,6 +30,7 @@ module Data.Text.Display
 import Control.Exception hiding (TypeError)
 import Data.ByteString
 import qualified Data.ByteString.Lazy as BL
+import Data.Foldable (foldMap')
 import Data.Int
 import Data.Kind
 import Data.List.NonEmpty
@@ -38,7 +39,6 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Word
 import GHC.TypeLits
-import Data.Foldable (foldMap')
 
 -- | A typeclass for user-facing output.
 --
@@ -89,7 +89,7 @@ class Display a where
   displayList (x:xs) = displayList' xs ("[" <> display x)
     where
       displayList' :: Display a => [a] -> Text -> Text
-      displayList' [] acc = acc <> "]"
+      displayList' [] acc     = acc <> "]"
       displayList' (y:ys) acc = displayList' ys (acc <> "," <> display y)
 
 -- | 🚫 You should not derive Display for function types!
@@ -149,10 +149,11 @@ type family CannotDisplayByteStrings :: Constraint where
 -- >    via (ShowInstance AutomaticallyDerived)
 --
 -- @since 0.0.1.0
-newtype (Show e) => ShowInstance e
+newtype ShowInstance e
   = ShowInstance e
-  deriving newtype ( Show -- ^ @since 0.0.1.0
-                   )
+  deriving newtype
+    ( Show -- ^ @since 0.0.1.0
+    )
 
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to derive 'Display' from it.
 --
@@ -199,7 +200,7 @@ instance Display a => Display (NonEmpty a) where
 
 -- | @since 0.0.1.0
 instance Display a => Display (Maybe a) where
-  display Nothing = T.pack "Nothing"
+  display Nothing  = T.pack "Nothing"
   display (Just a) = T.pack "Just " <> display a
 
 -- | @since 0.0.1.0
