@@ -29,9 +29,8 @@ instance Display ManualType where
   display (MT i) = "MT " <> display i
 
 data OpaqueType = OpaqueType Int
-
-instance Display OpaqueType where
-  display _ = "<opaque>"
+  deriving Display
+    via (OpaqueInstance "<opaque>" OpaqueType)
 
 spec :: Spec
 spec = do

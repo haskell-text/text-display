@@ -36,6 +36,18 @@ data AutomaticallyDerived = AD
     via (ShowInstance AutomaticallyDerived) 
 ```
 
+But let's say you want to redact an instance of `Display`? You can do it locally, through
+the `OpaqueInstance` helper. It is most useful to hide tokens or passwords:
+
+```haskell
+data UserToken = UserToken UUID                           
+ deriving Display                                         
+   via (OpaqueInstance "[REDACTED]" UserToken)            
+                                                          
+display $ UserToken "7a01d2ce-31ff-11ec-8c10-5405db82c3cd"
+-- => "[REDACTED]"                                              
+```
+
 ## Design Choices
 
 ### A “Lawless Typeclass”[^1]

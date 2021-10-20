@@ -1,12 +1,12 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DerivingVia #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -25,6 +25,7 @@ module Data.Text.Display
   ( -- * Documentation
     Display(..)
   , ShowInstance(..)
+  , OpaqueInstance(..)
   -- * Design choices
   -- $designChoices
   ) where
@@ -41,6 +42,7 @@ import GHC.TypeLits
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
+import Data.Proxy
 
 -- | A typeclass for user-facing output.
 --
@@ -138,6 +140,23 @@ type family CannotDisplayByteStrings :: Constraint where
       'Text     "Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8"
     )
 
+-- | This wrapper allows you to create an opaque instance for your type,
+-- useful for redacting sensitive content like tokens or passwords.
+--
+-- === Example
+--
+-- > data UserToken = UserToken UUID
+-- >  deriving Display
+-- >    via (OpaqueInstance "[REDACTED]" UserToken)
+--
+-- > display $ UserToken "7a01d2ce-31ff-11ec-8c10-5405db82c3cd"
+-- > "[REDACTED]"
+-- @since 0.0.1.0
+--
+newtype OpaqueInstance (str :: Symbol) (a :: Type) = Opaque a
+
+instance KnownSymbol str => Display (OpaqueInstance str a) where
+  display _ = T.pack $ symbolVal (Proxy @str)
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to
 -- derive 'Display' from it.
 --
@@ -151,8 +170,8 @@ type family CannotDisplayByteStrings :: Constraint where
 -- >    via (ShowInstance AutomaticallyDerived)
 --
 -- @since 0.0.1.0
-newtype ShowInstance e
-  = ShowInstance e
+newtype ShowInstance (a :: Type)
+  = ShowInstance a
   deriving newtype
     ( Show -- ^ @since 0.0.1.0
     )
