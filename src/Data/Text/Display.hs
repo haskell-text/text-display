@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
-
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -25,8 +24,11 @@ module Data.Text.Display
   ( -- * Documentation
     display
   , Display(..)
-  , ShowInstance(..)
+  , -- * Deriving your instance automatically
+    ShowInstance(..)
   , OpaqueInstance(..)
+  , -- * Writing your instance by hand
+    displayParen
   -- * Design choices
   -- $designChoices
   ) where
@@ -52,9 +54,10 @@ import Data.Proxy
 --
 -- @since 0.0.1.0
 class Display a where
-  {-# MINIMAL displayBuilder #-}
-  -- | Implement this method to describe how to covert your value to 'Text'.
+  {-# MINIMAL displayBuilder | displayPrec #-}
+  -- | Implement this method to describe how to convert your value to 'Builder'.
   displayBuilder :: a -> Builder
+  displayBuilder = displayPrec 0
 
   -- | The method 'displayList' is provided to allow for a specialised
   -- way to render lists of a certain value.
@@ -94,6 +97,43 @@ class Display a where
       displayList' :: [a] -> Builder -> Builder
       displayList' [] acc     = acc <> "]"
       displayList' (y:ys) acc = displayList' ys (acc <> "," <> displayBuilder y)
+
+  -- | The method 'displayPrec' allows you to write instances that
+  -- require nesting. The precedence parameter can be thought of as a
+  -- suggestion coming from the surrounding context for how tightly to bind. If the precedence
+  -- parameter is higher than the precedence of the operator (or constructor, function, etc.)
+  -- being displayed, then that suggests that the output will need to be surrounded in parentheses
+  -- in order to bind tightly enough (see 'displayParen').
+  --
+  -- For example, if an operator constructor is being displayed, then the precedence requirement
+  -- for its arguments will be the precedence of the operator. Meaning, if the argument
+  -- binds looser than the surrounding operator, then it will require parentheses.
+  --
+  -- Note that function/constructor application has an effective precedence of 10.
+  --
+  -- === Examples
+  --
+  -- > instance Display a => Display (Maybe a) where
+  -- >   -- In this instance, we define 'displayPrec' rather than 'displayBuilder' as we need to decide
+  -- >   -- whether or not to surround ourselves in parentheses based on the surrounding context.
+  -- >   -- If the precedence parameter is higher than 10 (the precedence of constructor application)
+  -- >   -- then we indeed need to surround ourselves in parentheses to avoid malformed outputs
+  -- >   -- such as @Just Just 5@.
+  -- >   -- We then set the precedence parameter of the inner 'displayPrec' to 11, as even
+  -- >   -- constructor application is not strong enough to avoid parentheses.
+  -- >   displayPrec _ Nothing = "Nothing"
+  -- >   displayPrec prec (Just a) = displayParen (prec > 10) $ "Just " <> displayPrec 11 a
+  --
+  -- > data Pair a b = a :*: b
+  -- > infix 5 :*: -- arbitrary choice of precedence
+  -- > instance (Display a, Display b) => Display (Pair a b) where
+  -- >   displayPrec prec (a :*: b) = displayParen (prec > 5) $ displayPrec 6 a <> " :*: " <> displayPrec 6 b
+  displayPrec
+    :: Int -- ^ The precedence level passed in by the surrounding context
+    -> a
+    -> Builder
+  displayPrec _ = displayBuilder
+
 
 -- | @since 0.0.1.0
 -- Convert a value to a readable 'Text'.
@@ -151,6 +191,13 @@ type family CannotDisplayByteStrings :: Constraint where
       'Text "💡 Always provide an explicit encoding" ':$$:
       'Text     "Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8"
     )
+
+-- | @since 0.0.1.0
+-- A utility function that surrounds the given 'Builder' with parentheses when the Bool parameter is True.
+-- Useful for writing instances that may require nesting. See the 'displayPrec' documentation for more
+-- information.
+displayParen :: Bool -> Builder -> Builder
+displayParen b txt = if b then "(" <> txt <> ")" else txt
 
 -- | This wrapper allows you to create an opaque instance for your type,
 -- useful for redacting sensitive content like tokens or passwords.
@@ -256,7 +303,17 @@ instance Display a => Display (NonEmpty a) where
   displayBuilder (a :| as) = displayBuilder a <> TB.fromString " :| " <> displayBuilder as
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance (Maybe a)) instance Show a => Display (Maybe a)
+instance Display a => Display (Maybe a) where
+  -- In this instance, we define 'displayPrec' rather than 'displayBuilder' as we need to decide
+  -- whether or not to surround ourselves in parentheses based on the surrounding context.
+  -- If the precedence parameter is higher than 10 (the precedence of constructor application)
+  -- then we indeed need to surround ourselves in parentheses to avoid malformed outputs
+  -- such as @Just Just 5@.
+  -- We then set the precedence parameter of the inner 'displayPrec' to 11, as even
+  -- constructor application is not strong enough to avoid parentheses.
+  displayPrec _ Nothing = "Nothing"
+  displayPrec prec (Just a) = displayParen (prec > 10) $ "Just " <> displayPrec 11 a
+
 -- | @since 0.0.1.0
 deriving via (DisplayRealFloat Double) instance Display Double
 

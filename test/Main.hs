@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DataKinds #-}
-{-# OPTIONS_GHC -fdefer-type-errors #-}
+{-# OPTIONS_GHC -fdefer-type-errors -Wno-defer-type-errors #-}
 
 module Main where
 
@@ -72,9 +72,15 @@ spec = do
     it "3-Tuple instance is equivalent to Show" $ do
       let tuple = (1 :: Int, True, "hahahha" :: String)
       T.unpack (display tuple) `shouldBe` show tuple
+
     it "Should not compile for a function instance" $
       shouldNotTypecheck (display id) `shouldThrow` anyErrorCall
     it "Should not compile for ByteStrings" $
       let bs = "badstring" :: ByteString
        in shouldNotTypecheck (display bs) `shouldThrow` anyErrorCall
 
+  describe "displayParen tests" $ do
+    it "surrounds with parens when True" $
+      displayParen True "foo" `shouldBe` "(foo)"
+    it "doesn't surround with parens when False" $
+      displayParen False "foo" `shouldBe` "foo"
