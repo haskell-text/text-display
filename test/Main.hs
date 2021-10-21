@@ -26,7 +26,7 @@ data AutomaticallyDerived = AD
 data ManualType = MT Int
 
 instance Display ManualType where
-  displayBuilder (MT i) = "MT " <> displayBuilder i
+  displayPrec prec (MT i) = displayParen (prec > 10) $ "MT " <> displayPrec 11 i
 
 data OpaqueType = OpaqueType Int
   deriving Display
