@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
-
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -23,9 +22,13 @@
 -}
 module Data.Text.Display
   ( -- * Documentation
-    Display(..)
-  , ShowInstance(..)
+    display
+  , Display(..)
+  , -- * Deriving your instance automatically
+    ShowInstance(..)
   , OpaqueInstance(..)
+  , -- * Writing your instance by hand
+    displayParen
   -- * Design choices
   -- $designChoices
   ) where
@@ -41,7 +44,6 @@ import Data.Word
 import GHC.Show (showLitString)
 import GHC.TypeLits
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.Text as T
 import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.Text.Lazy.Builder.Int as TB
 import qualified Data.Text.Lazy.Builder.RealFloat as TB
@@ -52,22 +54,10 @@ import Data.Proxy
 --
 -- @since 0.0.1.0
 class Display a where
-  {-# MINIMAL display | displayBuilder #-}
-  -- | Convert a value to a readable 'Text'.
-  --
-  -- === Examples
-  -- >>> display 3
-  -- "3"
-  --
-  -- >>> display True
-  -- "True"
-  --
-  display :: a -> Text
-  display a = TL.toStrict $ TB.toLazyText $ displayBuilder a
-
-  -- | Convert a value to a readable 'Builder'.
+  {-# MINIMAL displayBuilder | displayPrec #-}
+  -- | Implement this method to describe how to convert your value to 'Builder'.
   displayBuilder :: a -> Builder
-  displayBuilder a = TB.fromText $ display a
+  displayBuilder = displayPrec 0
 
   -- | The method 'displayList' is provided to allow for a specialised
   -- way to render lists of a certain value.
@@ -78,36 +68,85 @@ class Display a where
   -- === Example
   --
   -- > instance Display Char where
-  -- >   display = T.singleton
-  -- >   -- 'displayList' is implemented, so that when the `Display [a]` instance calls 'displayList',
+  -- >   displayBuilder '\'' = "'\\''"
+  -- >   displayBuilder c = "'" <> TB.singleton c <> "\'"
+  -- >   -- 'displayList' is overloaded, so that when the @Display [a]@ instance calls 'displayList',
   -- >   -- we end up with a nice string enclosed between double quotes.
-  -- >   displayList cs = T.pack $ "\"" <> showLitString cs "\""
+  -- >   displayList cs = TB.fromString $ "\"" <> showLitString cs "\""
   --
   -- > instance Display a => Display [a] where
-  -- > -- In this instance, 'display' is defined in terms of 'displayList', which for most types
-  -- > -- is defined as the default written in the class declaration.
-  -- > -- But when a ~ Char, there is an explicit implementation that is selected instead, which
-  -- > -- provides the rendering of the character string between double quotes.
-  -- >   display = displayList
+  -- >   -- In this instance, 'displayBuilder' is defined in terms of 'displayList', which for most types
+  -- >   -- is defined as the default written in the class declaration.
+  -- >   -- But when a ~ Char, there is an explicit implementation that is selected instead, which
+  -- >   -- provides the rendering of the character string between double quotes.
+  -- >   displayBuilder = displayList
   --
   -- ==== How implementations are selected
+  --
+  -- > displayBuilder ([1,2,3] :: [Int])
+  -- > → displayBuilder @[Int] = displayBuilderList @Int
+  -- > → Default `displayList`
   -- >
-  -- >                                                              Yes: Custom `displayList` (as seen above)
-  -- >                                                             🡕
-  -- > '[a]' (List) instance → `display = displayList` →  a ~ Char ?
-  -- >                                                             🡖
-  -- >                                                              No: Default `displayList`
-  displayList :: [a] -> Text
-  displayList = TL.toStrict . TB.toLazyText . displayBuilderList
-
-  -- | Like 'displayList' but encodes to a 'Builder'
-  displayBuilderList :: [a] -> Builder
-  displayBuilderList [] = "[]"
-  displayBuilderList (x:xs) = displayList' xs ("[" <> displayBuilder x)
+  -- > displayBuilder ("abc" :: [Char])
+  -- > → displayBuilder @[Char] = displayBuilderList @Char
+  -- > → Custom `displayList`
+  displayList :: [a] -> Builder
+  displayList [] = "[]"
+  displayList (x:xs) = displayList' xs ("[" <> displayBuilder x)
     where
       displayList' :: [a] -> Builder -> Builder
       displayList' [] acc     = acc <> "]"
       displayList' (y:ys) acc = displayList' ys (acc <> "," <> displayBuilder y)
+
+  -- | The method 'displayPrec' allows you to write instances that
+  -- require nesting. The precedence parameter can be thought of as a
+  -- suggestion coming from the surrounding context for how tightly to bind. If the precedence
+  -- parameter is higher than the precedence of the operator (or constructor, function, etc.)
+  -- being displayed, then that suggests that the output will need to be surrounded in parentheses
+  -- in order to bind tightly enough (see 'displayParen').
+  --
+  -- For example, if an operator constructor is being displayed, then the precedence requirement
+  -- for its arguments will be the precedence of the operator. Meaning, if the argument
+  -- binds looser than the surrounding operator, then it will require parentheses.
+  --
+  -- Note that function/constructor application has an effective precedence of 10.
+  --
+  -- === Examples
+  --
+  -- > instance Display a => Display (Maybe a) where
+  -- >   -- In this instance, we define 'displayPrec' rather than 'displayBuilder' as we need to decide
+  -- >   -- whether or not to surround ourselves in parentheses based on the surrounding context.
+  -- >   -- If the precedence parameter is higher than 10 (the precedence of constructor application)
+  -- >   -- then we indeed need to surround ourselves in parentheses to avoid malformed outputs
+  -- >   -- such as @Just Just 5@.
+  -- >   -- We then set the precedence parameter of the inner 'displayPrec' to 11, as even
+  -- >   -- constructor application is not strong enough to avoid parentheses.
+  -- >   displayPrec _ Nothing = "Nothing"
+  -- >   displayPrec prec (Just a) = displayParen (prec > 10) $ "Just " <> displayPrec 11 a
+  --
+  -- > data Pair a b = a :*: b
+  -- > infix 5 :*: -- arbitrary choice of precedence
+  -- > instance (Display a, Display b) => Display (Pair a b) where
+  -- >   displayPrec prec (a :*: b) = displayParen (prec > 5) $ displayPrec 6 a <> " :*: " <> displayPrec 6 b
+  displayPrec
+    :: Int -- ^ The precedence level passed in by the surrounding context
+    -> a
+    -> Builder
+  displayPrec _ = displayBuilder
+
+
+-- | @since 0.0.1.0
+-- Convert a value to a readable 'Text'.
+--
+-- === Examples
+-- >>> display 3
+-- "3"
+--
+-- >>> display True
+-- "True"
+--
+display :: Display a => a -> Text
+display a = TL.toStrict $ TB.toLazyText $ displayBuilder a
 
 -- | 🚫 You should not derive Display for function types!
 --
@@ -117,7 +156,7 @@ class Display a where
 --
 -- @since 0.0.1.0
 instance CannotDisplayBareFunctions => Display (a -> b) where
-  display = undefined
+  displayBuilder = undefined
 
 -- | @since 0.0.1.0
 type family CannotDisplayBareFunctions :: Constraint where
@@ -135,7 +174,7 @@ type family CannotDisplayBareFunctions :: Constraint where
 --
 -- @since 0.0.1.0
 instance CannotDisplayByteStrings => Display ByteString where
-  display = undefined
+  displayBuilder = undefined
 
 -- | 🚫 You should not derive Display for lazy ByteStrings!
 --
@@ -144,7 +183,7 @@ instance CannotDisplayByteStrings => Display ByteString where
 --
 -- @since 0.0.1.0
 instance CannotDisplayByteStrings => Display BL.ByteString where
-  display = undefined
+  displayBuilder = undefined
 
 type family CannotDisplayByteStrings :: Constraint where
   CannotDisplayByteStrings = TypeError
@@ -152,6 +191,13 @@ type family CannotDisplayByteStrings :: Constraint where
       'Text "💡 Always provide an explicit encoding" ':$$:
       'Text     "Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8"
     )
+
+-- | @since 0.0.1.0
+-- A utility function that surrounds the given 'Builder' with parentheses when the Bool parameter is True.
+-- Useful for writing instances that may require nesting. See the 'displayPrec' documentation for more
+-- information.
+displayParen :: Bool -> Builder -> Builder
+displayParen b txt = if b then "(" <> txt <> ")" else txt
 
 -- | This wrapper allows you to create an opaque instance for your type,
 -- useful for redacting sensitive content like tokens or passwords.
@@ -169,7 +215,7 @@ type family CannotDisplayByteStrings :: Constraint where
 newtype OpaqueInstance (str :: Symbol) (a :: Type) = Opaque a
 
 instance KnownSymbol str => Display (OpaqueInstance str a) where
-  display _ = T.pack $ symbolVal (Proxy @str)
+  displayBuilder _ = TB.fromString $ symbolVal (Proxy @str)
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to
 -- derive 'Display' from it.
 --
@@ -193,7 +239,7 @@ newtype ShowInstance (a :: Type)
 --
 -- @since 0.0.1.0
 instance Show e => Display (ShowInstance e) where
-  display s = T.pack $ show s
+  displayBuilder s = TB.fromString $ show s
 
 -- @since 0.0.1.0
 newtype DisplayDecimal e
@@ -206,7 +252,7 @@ instance Integral e => Display (DisplayDecimal e) where
   displayBuilder = TB.decimal
 
 -- @since 0.0.1.0
-newtype DisplayRealFloat e 
+newtype DisplayRealFloat e
   = DisplayRealFloat e
   deriving newtype
     (RealFloat, RealFrac, Real, Ord, Eq, Num, Fractional, Floating)
@@ -227,20 +273,18 @@ instance Display Char where
   displayBuilder c = "'" <> TB.singleton c <> "\'"
   -- 'displayList' is overloaded, so that when the @Display [a]@ instance calls 'displayList',
   -- we end up with a nice string enclosed between double quotes.
-  displayBuilderList cs = TB.fromString $ "\"" <> showLitString cs "\""
+  displayList cs = TB.fromString $ "\"" <> showLitString cs "\""
 
 -- | Lazy 'TL.Text'
 --
 -- @since 0.0.1.0
 instance Display TL.Text where
-  display = TL.toStrict
   displayBuilder = TB.fromLazyText
 
 -- | Strict 'Data.Text.Text'
 --
 -- @since 0.0.1.0
 instance Display Text where
-  display = id
   displayBuilder = TB.fromText
 
 -- | @since 0.0.1.0
@@ -248,18 +292,28 @@ instance Display a => Display [a] where
   {-# SPECIALISE instance Display [String] #-}
   {-# SPECIALISE instance Display [Char] #-}
   {-# SPECIALISE instance Display [Int] #-}
-  -- In this instance, 'display' is defined in terms of 'displayList', which for most types
+  -- In this instance, 'displayBuilder' is defined in terms of 'displayList', which for most types
   -- is defined as the default written in the class declaration.
   -- But when @a ~ Char@, there is an explicit implementation that is selected instead, which
   -- provides the rendering of the character string between double quotes.
-  display = displayList
+  displayBuilder = displayList
 
 -- | @since 0.0.1.0
 instance Display a => Display (NonEmpty a) where
   displayBuilder (a :| as) = displayBuilder a <> TB.fromString " :| " <> displayBuilder as
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance (Maybe a)) instance Show a => Display (Maybe a)
+instance Display a => Display (Maybe a) where
+  -- In this instance, we define 'displayPrec' rather than 'displayBuilder' as we need to decide
+  -- whether or not to surround ourselves in parentheses based on the surrounding context.
+  -- If the precedence parameter is higher than 10 (the precedence of constructor application)
+  -- then we indeed need to surround ourselves in parentheses to avoid malformed outputs
+  -- such as @Just Just 5@.
+  -- We then set the precedence parameter of the inner 'displayPrec' to 11, as even
+  -- constructor application is not strong enough to avoid parentheses.
+  displayPrec _ Nothing = "Nothing"
+  displayPrec prec (Just a) = displayParen (prec > 10) $ "Just " <> displayPrec 11 a
+
 -- | @since 0.0.1.0
 deriving via (DisplayRealFloat Double) instance Display Double
 
