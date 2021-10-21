@@ -195,19 +195,23 @@ newtype ShowInstance (a :: Type)
 instance Show e => Display (ShowInstance e) where
   display s = T.pack $ show s
 
+-- @since 0.0.1.0
 newtype DisplayDecimal e
   = DisplayDecimal e
   deriving newtype
     (Integral, Real, Enum, Ord, Num, Eq)
 
+-- @since 0.0.1.0
 instance Integral e => Display (DisplayDecimal e) where
   displayBuilder = TB.decimal
 
+-- @since 0.0.1.0
 newtype DisplayRealFloat e 
   = DisplayRealFloat e
   deriving newtype
     (RealFloat, RealFrac, Real, Ord, Eq, Num, Fractional, Floating)
 
+-- @since 0.0.1.0
 instance RealFloat e => Display (DisplayRealFloat e) where
   displayBuilder = TB.realFloat
 
@@ -219,11 +223,11 @@ deriving via (ShowInstance Bool) instance Display Bool
 
 -- | @since 0.0.1.0
 instance Display Char where
-  display '\'' = "'\\''"
-  display c = "'" <> T.singleton c <> "\'"
+  displayBuilder '\'' = "'\\''"
+  displayBuilder c = "'" <> TB.singleton c <> "\'"
   -- 'displayList' is overloaded, so that when the @Display [a]@ instance calls 'displayList',
   -- we end up with a nice string enclosed between double quotes.
-  displayList cs = T.pack $ "\"" <> showLitString cs "\""
+  displayBuilderList cs = TB.fromString $ "\"" <> showLitString cs "\""
 
 -- | Lazy 'TL.Text'
 --
