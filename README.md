@@ -1,16 +1,22 @@
-<h1 align="center"> Display <a href="https://github.com/Kleidukos/text-display/actions">
-                              <img src="https://img.shields.io/github/workflow/status/Kleidukos/text-display/CI?style=flat-square" alt="CI badge" />
-                            </a>
-                            <a href="https://haskell.org">
-                              <img src="https://img.shields.io/badge/Made%20in-Haskell-%235e5086?logo=haskell&style=flat-square" alt="made with Haskell"/>
-                            </a>
-</h1>
-
 <p align="center">
 
-A Typeclass for user-facing output </br> </br>
+<img src="./images/logo.svg" height=100 width=100 />
+</p>
+
+<p align="center">
+<a href="https://github.com/Kleidukos/text-display/actions"></a>
+  <img src="https://img.shields.io/github/workflow/status/Kleidukos/text-display/CI?style=flat-square" alt="CI badge" />
+</a>
+<a href="https://haskell.org">
+  <img src="https://img.shields.io/badge/Made%20in-Haskell-%235e5086?logo=haskell&style=flat-square" alt="made with Haskell"/>
+</a>
+</p>
+
+<p align="center">
 <a href='https://ko-fi.com/Q5Q327ZHW' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 </p>
+
+> *A Typeclass for user-facing output*
 
 
 ## Description
