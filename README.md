@@ -1,6 +1,17 @@
-# Display [![CI-badge][CI-badge]][CI-url]
+<h1 align="center"> Display <a href="https://github.com/Kleidukos/text-display/actions">
+                              <img src="https://img.shields.io/github/workflow/status/Kleidukos/text-display/CI?style=flat-square" alt="CI badge" />
+                            </a>
+                            <a href="https://haskell.org">
+                              <img src="https://img.shields.io/badge/Made%20in-Haskell-%235e5086?logo=haskell&style=flat-square" alt="made with Haskell"/>
+                            </a>
+</h1>
 
-_A Typeclass for user-facing output_
+<p align="center">
+
+A Typeclass for user-facing output </br> </br>
+<a href='https://ko-fi.com/Q5Q327ZHW' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+</p>
+
 
 ## Description
 
@@ -89,5 +100,3 @@ to Text.
 [^1]: _"mort aux lois, vive l'anarchie"_ - Georges Brassens
 
 [Show]: https://hackage.haskell.org/package/base/docs/Text-Show.html#v:Show
-[CI-badge]: https://img.shields.io/github/workflow/status/Kleidukos/text-display/CI?style=flat-square
-[CI-url]: https://github.com/Kleidukos/text-display/actions
