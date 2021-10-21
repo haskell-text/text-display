@@ -65,6 +65,25 @@ display $ UserToken "7a01d2ce-31ff-11ec-8c10-5405db82c3cd"
 -- => "[REDACTED]"                                              
 ```
 
+Since `append` from `Data.Text` is `O(n)`, for efficiency you may implement
+`displayBuilder` which encodes to `text`'s `Builder` type, which has an `O(1)`
+`append`. This is especially useful for types that are defined recursively,
+like lists or trees for example. Since `Builder` is a buffer used for efficiently
+building `Text` values, it's primarily used for defining instances of `Display`, but
+`display` and `displayBuilder` may be used interchangeably to the user's discretion.
+
+```haskell
+data Tree a = Node a [Tree a]
+
+instance Display a => Display (Tree a) where
+  -- displayBuilder for the instance
+  displayBuilder (Node a xs) = displayBuilder a <> displayBuilderList xs
+
+-- display for the application code
+display $ Node 1 [Node 2 [], Node 3 [], Node 4 []]
+-- => "1[2[],3[],4[]]"
+```
+
 ## Design Choices
 
 ### A “Lawless Typeclass”[^1]

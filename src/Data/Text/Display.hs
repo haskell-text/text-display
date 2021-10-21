@@ -36,11 +36,15 @@ import Data.Int
 import Data.Kind
 import Data.List.NonEmpty
 import Data.Text (Text)
+import Data.Text.Lazy.Builder (Builder)
 import Data.Word
 import GHC.Show (showLitString)
 import GHC.TypeLits
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
+import qualified Data.Text.Lazy.Builder as TB
+import qualified Data.Text.Lazy.Builder.Int as TB
+import qualified Data.Text.Lazy.Builder.RealFloat as TB
 import qualified Data.Text.Lazy as TL
 import Data.Proxy
 
@@ -48,7 +52,7 @@ import Data.Proxy
 --
 -- @since 0.0.1.0
 class Display a where
-  {-# MINIMAL display #-}
+  {-# MINIMAL display | displayBuilder #-}
   -- | Convert a value to a readable 'Text'.
   --
   -- === Examples
@@ -59,6 +63,11 @@ class Display a where
   -- "True"
   --
   display :: a -> Text
+  display a = TL.toStrict $ TB.toLazyText $ displayBuilder a
+
+  -- | Convert a value to a readable 'Builder'.
+  displayBuilder :: a -> Builder
+  displayBuilder a = TB.fromText $ display a
 
   -- | The method 'displayList' is provided to allow for a specialised
   -- way to render lists of a certain value.
@@ -89,12 +98,16 @@ class Display a where
   -- >                                                             🡖
   -- >                                                              No: Default `displayList`
   displayList :: [a] -> Text
-  displayList [] = "[]"
-  displayList (x:xs) = displayList' xs ("[" <> display x)
+  displayList = TL.toStrict . TB.toLazyText . displayBuilderList
+
+  -- | Like 'displayList' but encodes to a 'Builder'
+  displayBuilderList :: [a] -> Builder
+  displayBuilderList [] = "[]"
+  displayBuilderList (x:xs) = displayList' xs ("[" <> displayBuilder x)
     where
-      displayList' :: [a] -> Text -> Text
+      displayList' :: [a] -> Builder -> Builder
       displayList' [] acc     = acc <> "]"
-      displayList' (y:ys) acc = displayList' ys (acc <> "," <> display y)
+      displayList' (y:ys) acc = displayList' ys (acc <> "," <> displayBuilder y)
 
 -- | 🚫 You should not derive Display for function types!
 --
@@ -182,6 +195,26 @@ newtype ShowInstance (a :: Type)
 instance Show e => Display (ShowInstance e) where
   display s = T.pack $ show s
 
+-- @since 0.0.1.0
+newtype DisplayDecimal e
+  = DisplayDecimal e
+  deriving newtype
+    (Integral, Real, Enum, Ord, Num, Eq)
+
+-- @since 0.0.1.0
+instance Integral e => Display (DisplayDecimal e) where
+  displayBuilder = TB.decimal
+
+-- @since 0.0.1.0
+newtype DisplayRealFloat e 
+  = DisplayRealFloat e
+  deriving newtype
+    (RealFloat, RealFrac, Real, Ord, Eq, Num, Fractional, Floating)
+
+-- @since 0.0.1.0
+instance RealFloat e => Display (DisplayRealFloat e) where
+  displayBuilder = TB.realFloat
+
 -- | @since 0.0.1.0
 deriving via (ShowInstance ()) instance Display ()
 
@@ -190,23 +223,25 @@ deriving via (ShowInstance Bool) instance Display Bool
 
 -- | @since 0.0.1.0
 instance Display Char where
-  display '\'' = "'\\''"
-  display c = "'" <> T.singleton c <> "\'"
+  displayBuilder '\'' = "'\\''"
+  displayBuilder c = "'" <> TB.singleton c <> "\'"
   -- 'displayList' is overloaded, so that when the @Display [a]@ instance calls 'displayList',
   -- we end up with a nice string enclosed between double quotes.
-  displayList cs = T.pack $ "\"" <> showLitString cs "\""
+  displayBuilderList cs = TB.fromString $ "\"" <> showLitString cs "\""
 
 -- | Lazy 'TL.Text'
 --
 -- @since 0.0.1.0
 instance Display TL.Text where
   display = TL.toStrict
+  displayBuilder = TB.fromLazyText
 
 -- | Strict 'Data.Text.Text'
 --
 -- @since 0.0.1.0
 instance Display Text where
   display = id
+  displayBuilder = TB.fromText
 
 -- | @since 0.0.1.0
 instance Display a => Display [a] where
@@ -221,48 +256,48 @@ instance Display a => Display [a] where
 
 -- | @since 0.0.1.0
 instance Display a => Display (NonEmpty a) where
-  display (a :| as) = display a <> T.pack " :| " <> display as
+  displayBuilder (a :| as) = displayBuilder a <> TB.fromString " :| " <> displayBuilder as
 
 -- | @since 0.0.1.0
 deriving via (ShowInstance (Maybe a)) instance Show a => Display (Maybe a)
 -- | @since 0.0.1.0
-deriving via (ShowInstance Double) instance Display Double
+deriving via (DisplayRealFloat Double) instance Display Double
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Float) instance Display Float
+deriving via (DisplayRealFloat Float) instance Display Float
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Int) instance Display Int
+deriving via (DisplayDecimal Int) instance Display Int
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Int8) instance Display Int8
+deriving via (DisplayDecimal Int8) instance Display Int8
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Int16) instance Display Int16
+deriving via (DisplayDecimal Int16) instance Display Int16
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Int32) instance Display Int32
+deriving via (DisplayDecimal Int32) instance Display Int32
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Int64) instance Display Int64
+deriving via (DisplayDecimal Int64) instance Display Int64
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Integer) instance Display Integer
+deriving via (DisplayDecimal Integer) instance Display Integer
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Word) instance Display Word
+deriving via (DisplayDecimal Word) instance Display Word
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Word8) instance Display Word8
+deriving via (DisplayDecimal Word8) instance Display Word8
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Word16) instance Display Word16
+deriving via (DisplayDecimal Word16) instance Display Word16
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Word32) instance Display Word32
+deriving via (DisplayDecimal Word32) instance Display Word32
 
 -- | @since 0.0.1.0
-deriving via (ShowInstance Word64) instance Display Word64
+deriving via (DisplayDecimal Word64) instance Display Word64
 
 -- | @since 0.0.1.0
 deriving via (ShowInstance IOException) instance Display IOException
@@ -272,15 +307,15 @@ deriving via (ShowInstance SomeException) instance Display SomeException
 
 -- | @since 0.0.1.0
 instance (Display a, Display b) => Display (a, b) where
-  display (a, b) = "(" <> display a <>  "," <> display b <> ")"
+  displayBuilder (a, b) = "(" <> displayBuilder a <>  "," <> displayBuilder b <> ")"
 
 -- | @since 0.0.1.0
 instance (Display a, Display b, Display c) => Display (a, b, c) where
-  display (a, b, c) = "(" <> display a <>  "," <> display b <> "," <> display c <> ")"
+  displayBuilder (a, b, c) = "(" <> displayBuilder a <>  "," <> displayBuilder b <> "," <> displayBuilder c <> ")"
 
 -- | @since 0.0.1.0
 instance (Display a, Display b, Display c, Display d) => Display (a, b, c, d) where
-  display (a, b, c, d) = "(" <> display a <>  "," <> display b <> "," <> display c <> "," <> display d <> ")"
+  displayBuilder (a, b, c, d) = "(" <> displayBuilder a <>  "," <> displayBuilder b <> "," <> displayBuilder c <> "," <> displayBuilder d <> ")"
 
 -- $designChoices
 --
