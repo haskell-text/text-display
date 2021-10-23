@@ -11,7 +11,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 {-|
-  Module      : Data.Text.Display
+  Module      : Data.Text.Entity
   Copyright   : © Hécate Moonlight, 2021
   License     : MIT
   Maintainer  : hecate@glitchbra.in
