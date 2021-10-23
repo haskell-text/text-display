@@ -24,6 +24,8 @@
 The `text-display` library offers a way for developers to print a textual representation of datatypes that does not
 have to abide by the rules of the [Show typeclass][Show].
 
+If you wish to learn more about how things are done and why, please read the [DESIGN.md][./DESIGN.md] file.
+
 ## Examples
 
 There are two methods to implement `Display` for your type:
@@ -36,7 +38,7 @@ data ManualType = MT Int
 -- >>> display (MT 32)
 -- "MT 32"
 instance Display ManualType where
-  display (MT i) = "MT " <> display i
+  displayPrec prec (MT i) = displayParen (prec > 10) $ "MT " <> displayPrec 11 i
 ```
 
 But this can be quite time-consuming, especially if your datatype already has
@@ -64,64 +66,4 @@ data UserToken = UserToken UUID
 display $ UserToken "7a01d2ce-31ff-11ec-8c10-5405db82c3cd"
 -- => "[REDACTED]"                                              
 ```
-
-Since `append` from `Data.Text` is `O(n)`, for efficiency you may implement
-`displayBuilder` which encodes to `text`'s `Builder` type, which has an `O(1)`
-`append`. This is especially useful for types that are defined recursively,
-like lists or trees for example. Since `Builder` is a buffer used for efficiently
-building `Text` values, it's primarily used for defining instances of `Display`, but
-`display` and `displayBuilder` may be used interchangeably to the user's discretion.
-
-```haskell
-data Tree a = Node a [Tree a]
-
-instance Display a => Display (Tree a) where
-  -- displayBuilder for the instance
-  displayBuilder (Node a xs) = displayBuilder a <> displayBuilderList xs
-
--- display for the application code
-display $ Node 1 [Node 2 [], Node 3 [], Node 4 []]
--- => "1[2[],3[],4[]]"
-```
-
-## Design Choices
-
-### A “Lawless Typeclass”[^1]
-
-The `Display` typeclass does not contain any law. This is a controversial choice for some people,
-but the truth is that there are not any laws to ask of the consumer that are not already enforced
-by the type system and the internals of the `Text` type.
-
-### "🚫 You should not derive Display for function types!"
-
-Sometimes, when using the library, you may encounter this message:
-
-```
-• 🚫 You should not derive Display for function types!                     
-  💡 Write a 'newtype' wrapper that represents your domain more accurately.
-     If you are not consciously trying to use `display` on a function,     
-     make sure that you are not missing an argument somewhere.
-```
-
-The `display` library does not allow the definition and usage of `Display` on
-bare function types (`(a -> b)`).  
-Experience and time have shown that due to partial application being baked in the language,
-many users encounter a partial application-related error message when a simple missing
-argument to a function is the root cause.
-
-There may be legitimate uses of a `Display` instance on a function type.
-But these usages are extremely dependent on their domain of application.
-That is why it is best to wrap them in a newtype that can better
-express and enforce the domain.
-
-
-### "🚫 You should not derive Display for ByteStrings!"
-
-An arbitrary ByteStrings cannot be safely converted to text without prior knowledge of its encoding.
-As such, in order to avoid dangerously blind conversions, it is recommended to use a specialised
-function such as `decodeUtf8'` or `decodeUtf8Strict` if you wish to turn a UTF8-encoded ByteString
-to Text.
-
-[^1]: _"mort aux lois, vive l'anarchie"_ - Georges Brassens
-
 [Show]: https://hackage.haskell.org/package/base/docs/Text-Show.html#v:Show
