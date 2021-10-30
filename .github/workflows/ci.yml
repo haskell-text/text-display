@@ -8,13 +8,13 @@ on:
 
 jobs:
   cabal:
-    name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}
+    name: ${{ matrix.os }} / ghc ${{ matrix.ghc }} (${{ matrix.cabal }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
-        cabal: ["3.4.0.0"]
-        ghc: ["8.8.4", "8.10.4", "9.0.1"]
+        cabal: ["3.4.0.0", "3.6.2.0"]
+        ghc: ["8.8.4", "8.10.4", "9.0.1", "9.2.1"]
 
     steps:
     - uses: actions/checkout@v2
