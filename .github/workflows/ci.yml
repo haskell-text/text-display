@@ -35,12 +35,12 @@ jobs:
     - name: Configure Darwin Nixpkgs
       if: matrix.os == 'macos-latest' 
       run: |
-        echo 'NIX_PATH="nixpkgs=channel:unstable-darwin"' >> "$GITHUB_ENV"
+        echo 'NIX_PATH="nixpkgs=channel:nixpkgs-unstable-darwin"' >> "$GITHUB_ENV"
 
     - name: Configure Linux Nixpkgs
       if: matrix.os == 'ubuntu-latest'
       run: |
-        echo 'NIX_PATH="nixpkgs=channel:unstable"' >> "$GITHUB_ENV"
+        echo 'NIX_PATH="nixpkgs=channel:nixpkgs-unstable"' >> "$GITHUB_ENV"
 
     - name: Set GHC version for Nix
       run: |
