@@ -35,12 +35,12 @@ jobs:
     - name: Configure Darwin Nixpkgs
       if: matrix.os == 'macos-latest' 
       run: |
-        echo 'NIX_PATH="nixpkgs=channel:nixpkgs-21.05-darwin"' >> "$GITHUB_ENV"
+        echo 'NIX_PATH="nixpkgs=channel:unstable-darwin"' >> "$GITHUB_ENV"
 
     - name: Configure Linux Nixpkgs
       if: matrix.os == 'ubuntu-latest'
       run: |
-        echo 'NIX_PATH="nixpkgs=channel:nixos-21.05"' >> "$GITHUB_ENV"
+        echo 'NIX_PATH="nixpkgs=channel:unstable"' >> "$GITHUB_ENV"
 
     - name: Set GHC version for Nix
       run: |
@@ -50,6 +50,8 @@ jobs:
         then echo "GHC='8104'" >> "$GITHUB_ENV"
         elif [[ ${{matrix.ghc}} == '9.0.1' ]]
         then echo "GHC='901'" >> "$GITHUB_ENV"
+        elif [[ ${{matrix.ghc}} == '9.0.1' ]]
+        then echo "GHC='921'" >> "$GITHUB_ENV"
         fi
 
     - name: Install Nix
