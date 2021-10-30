@@ -50,7 +50,7 @@ jobs:
         then echo "GHC='8104'" >> "$GITHUB_ENV"
         elif [[ ${{matrix.ghc}} == '9.0.1' ]]
         then echo "GHC='901'" >> "$GITHUB_ENV"
-        elif [[ ${{matrix.ghc}} == '9.0.1' ]]
+        elif [[ ${{matrix.ghc}} == '9.2.1' ]]
         then echo "GHC='921'" >> "$GITHUB_ENV"
         fi
 

@@ -9,8 +9,6 @@ in with pkgs;
       hlint
       haskellPackages.apply-refact
 
-      # DB Deps
-      postgresql_13
       gmp
       zlib
       glibcLocales
