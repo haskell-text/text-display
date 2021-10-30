@@ -46,8 +46,8 @@ jobs:
       run: |
         if [[ ${{matrix.ghc}} == '8.8.4' ]]
         then echo "GHC='884'" >> "$GITHUB_ENV"
-        elif [[ ${{matrix.ghc}} == '8.10.4' ]]
-        then echo "GHC='8104'" >> "$GITHUB_ENV"
+        elif [[ ${{matrix.ghc}} == '8.10.7' ]]
+        then echo "GHC='8107'" >> "$GITHUB_ENV"
         elif [[ ${{matrix.ghc}} == '9.0.1' ]]
         then echo "GHC='901'" >> "$GITHUB_ENV"
         elif [[ ${{matrix.ghc}} == '9.2.1' ]]
