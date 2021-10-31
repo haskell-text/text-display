@@ -6,8 +6,8 @@ synopsis:           A typeclass for user-facing output
 description:
   The 'Display' typeclass provides a solution for user-facing output that does not have to abide by the rules of the Show typeclass.
 
-homepage:           https://github.com/Kleidukos/text-display#readme
-bug-reports:        https://github.com/Kleidukos/text-display/issues
+homepage:           https://github.com/haskell-text/text-display#readme
+bug-reports:        https://github.com/haskell-text/text-display/issues
 author:             Hécate Moonlight
 maintainer:         Hécate Moonlight
 license:            MIT
@@ -20,7 +20,7 @@ extra-source-files:
 
 source-repository head
   type:     git
-  location: https://github.com/Kleidukos/text-display
+  location: https://github.com/haskell-text/text-display
 
 common common-extensions
   default-language: Haskell2010
