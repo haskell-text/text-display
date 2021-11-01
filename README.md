@@ -24,7 +24,7 @@
 The `text-display` library offers a way for developers to print a textual representation of datatypes that does not
 have to abide by the rules of the [Show typeclass][Show].
 
-If you wish to learn more about how things are done and why, please read the [DESIGN.md][./DESIGN.md] file.
+If you wish to learn more about how things are done and why, please read the [DESIGN.md](./DESIGN.md) file.
 
 ## Examples
 
