@@ -1,5 +1,0 @@
-packages: ./
-
-with-compiler: ghc-8.10.7
-
-index-state: 2021-10-31T09:30:28Z
