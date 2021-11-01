@@ -27,7 +27,7 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: 'latest'
       - name: Configure
-        run: cabal new-configure -w ${{ steps.setup-haskell.outputs.ghc-exe }} --enable-tests
+        run: cabal new-configure --enable-tests
       - name: Freeze
         run: cabal freeze
       - name: Cache
@@ -36,14 +36,6 @@ jobs:
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
           key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
           restore-keys: ${{ runner.os }}-${{ matrix.ghc }}-
-      - name: Get dependencies
-        run: |
-          cabal new-install --install-method=copy -w ${{ steps.setup-haskell.outputs.ghc-exe }} hlint
-          echo "hlint_exe=${{ steps.haskell-setup.outputs.cabal-store}}/bin/hlint" >> $GITHUB_ENV
-      - name: Run HLint
-        run: find . -name "*.hs" -exec ${{ env.hlint_exe }} {} +
-      - name: Configure
-        run: cabal new-configure -w ${{ steps.setup-haskell.outputs.ghc-exe }}
       - name: Build
         run: cabal new-build
       - name: Test
@@ -68,6 +60,5 @@ jobs:
             apt-get install -q -y ghc cabal-install hlint
           run: |
             cabal new-update
-            ./.github/workflows/hlint-runner.sh
             cabal new-build
             cabal new-test all
