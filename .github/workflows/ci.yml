@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: ['aarch64', 'armv7', 'ppc64le']
+        arch: ['aarch64', 'armv7']
     steps:
       - name: Checkout base repo
         uses: actions/checkout@v2
@@ -57,7 +57,7 @@ jobs:
           githubToken: ${{ github.token }}
           install: |
             apt-get update -q -y
-            apt-get install -q -y ghc cabal-install hlint
+            apt-get install -q -y ghc cabal-install
           run: |
             cabal new-update
             cabal new-build
