@@ -27,7 +27,7 @@ jobs:
       - name: Build HLint
         run: cd .. && cabal new-install hlint-3.3.4
       - name: Run HLint
-        run: find src test -name "*.hs" -exec ${{ steps.setup-haskell.outputs.cabal-store }}/bin/hlint {} + 
+        run: find src test -name "*.hs" -exec ${{ steps.setup-haskell.outputs.cabal-store }}/../bin/hlint {} + 
   native:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -70,16 +70,33 @@ jobs:
     steps:
       - name: Checkout base repo
         uses: actions/checkout@v2
+      - name: Set up Cabal
+        id: setup-haskell
+        uses: haskell/actions/setup@v1
+        with:
+          ghc-version: '9.0.1'
+          cabal-version: 'latest'
+      - name: Configure
+        run: cabal new-configure --enable-tests
+      - name: Freeze
+        run: cabal freeze
+      - name: Cache
+        uses: actions/cache@v2.1.3
+        with:
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          key: ${{ matrix.arch }}-${{ hashFiles('cabal.project.freeze') }}
+      - name: Remove freeze file
+        run: rm cabal.project.freeze
       - name: Build and test
         uses: uraimo/run-on-arch-action@v2.1.1
         with:
           arch: ${{ matrix.arch }}
           distro: bullseye
           githubToken: ${{ github.token }}
+          dockerRunArgs: --volume ${{ steps.setup-haskell.outputs.cabal-store }}/../:/root/.cabal
           install: |
             apt-get update -q -y
             apt-get install -q -y ghc cabal-install
           run: |
-            cabal new-update
             cabal new-build
             cabal new-test all
