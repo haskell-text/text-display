@@ -78,12 +78,12 @@ You will notice that `display` itself is not part of the Typeclass. And indeed, 
 
 ## Usage restrictions
 
-### "🚫 You should not derive Display for function types!"
+### "🚫 You should not try to display function types!"
 
 Sometimes, when using the library, you may encounter this message:
 
 ```
-• 🚫 You should not derive Display for function types!                     
+• 🚫 You should not try to display function types!                     
   💡 Write a 'newtype' wrapper that represents your domain more accurately.
      If you are not consciously trying to use `display` on a function,     
      make sure that you are not missing an argument somewhere.
@@ -100,7 +100,7 @@ But these usages are extremely dependent on their domain of application.
 That is why it is best to wrap them in a newtype that can better
 express and enforce the domain.
 
-### "🚫 You should not derive Display for ByteStrings!"
+### "🚫 You should not try to display ByteStrings!"
 
 An arbitrary ByteStrings cannot be safely converted to text without prior knowledge of its encoding.
 As such, in order to avoid dangerously blind conversions, it is recommended to use a specialised

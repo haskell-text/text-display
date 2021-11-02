@@ -17,7 +17,7 @@
   Maintainer  : hecate@glitchbra.in
   Stability   : stable
 
-  The Display typeclass provides a solution for user-facing output that does not have to abide by the rules of the Show typeclass.
+  Use 'display' to produce user-facing text
 
 -}
 module Data.Text.Display
@@ -135,8 +135,7 @@ class Display a where
   displayPrec _ = displayBuilder
 
 
--- | @since 0.0.1.0
--- Convert a value to a readable 'Text'.
+-- | Convert a value to a readable 'Text'.
 --
 -- === Examples
 -- >>> display 3
@@ -145,10 +144,11 @@ class Display a where
 -- >>> display True
 -- "True"
 --
+-- @since 0.0.1.0
 display :: Display a => a -> Text
 display a = TL.toStrict $ TB.toLazyText $ displayBuilder a
 
--- | 🚫 You should not derive Display for function types!
+-- | 🚫 You should not try to display functions!
 --
 -- 💡 Write a 'newtype' wrapper that represents your domain more accurately.
 --    If you are not consciously trying to use `display` on a function,
@@ -161,25 +161,25 @@ instance CannotDisplayBareFunctions => Display (a -> b) where
 -- | @since 0.0.1.0
 type family CannotDisplayBareFunctions :: Constraint where
   CannotDisplayBareFunctions = TypeError
-    ( 'Text "🚫 You should not derive Display for function types!" ':$$:
+    ( 'Text "🚫 You should not try to display functions!" ':$$:
       'Text "💡 Write a 'newtype' wrapper that represents your domain more accurately." ':$$:
       'Text "   If you are not consciously trying to use `display` on a function," ':$$:
       'Text "   make sure that you are not missing an argument somewhere."
     )
 
--- | 🚫 You should not derive Display for strict ByteStrings!
+-- | 🚫 You should not try to display strict ByteStrings!
 --
 -- 💡 Always provide an explicit encoding.
--- Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8
+-- Use 'Data.Text.Encoding.decudeUtf8'' or 'Data.Text.Encoding.decudeUtf8With' to convert from UTF-8
 --
 -- @since 0.0.1.0
 instance CannotDisplayByteStrings => Display ByteString where
   displayBuilder = undefined
 
--- | 🚫 You should not derive Display for lazy ByteStrings!
+-- | 🚫 You should not try to display lazy ByteStrings!
 --
 -- 💡 Always provide an explicit encoding.
--- Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8
+-- Use 'Data.Text.Encoding.decudeUtf8'' or 'Data.Text.Encoding.decudeUtf8With' to convert from UTF-8
 --
 -- @since 0.0.1.0
 instance CannotDisplayByteStrings => Display BL.ByteString where
@@ -187,15 +187,16 @@ instance CannotDisplayByteStrings => Display BL.ByteString where
 
 type family CannotDisplayByteStrings :: Constraint where
   CannotDisplayByteStrings = TypeError
-    ( 'Text "🚫 You should not derive Display for ByteStrings!" ':$$:
+    ( 'Text "🚫 You should not try to display ByteStrings!" ':$$:
       'Text "💡 Always provide an explicit encoding" ':$$:
-      'Text     "Use 'decodeUtf8'' or 'decodeUtf8With' to convert from UTF-8"
+      'Text     "Use 'Data.Text.Encoding.decudeUtf8'' or 'Data.Text.Encoding.decudeUtf8With' to convert from UTF-8"
     )
 
--- | @since 0.0.1.0
--- A utility function that surrounds the given 'Builder' with parentheses when the Bool parameter is True.
+-- | A utility function that surrounds the given 'Builder' with parentheses when the Bool parameter is True.
 -- Useful for writing instances that may require nesting. See the 'displayPrec' documentation for more
 -- information.
+--
+-- @since 0.0.1.0
 displayParen :: Bool -> Builder -> Builder
 displayParen b txt = if b then "(" <> txt <> ")" else txt
 
@@ -210,12 +211,17 @@ displayParen b txt = if b then "(" <> txt <> ")" else txt
 --
 -- > display $ UserToken "7a01d2ce-31ff-11ec-8c10-5405db82c3cd"
 -- > "[REDACTED]"
--- @since 0.0.1.0
 --
+-- @since 0.0.1.0
 newtype OpaqueInstance (str :: Symbol) (a :: Type) = Opaque a
 
+-- | This wrapper allows you to create an opaque instance for your type,
+-- useful for redacting sensitive content like tokens or passwords.
+--
+-- @since 0.0.1.0
 instance KnownSymbol str => Display (OpaqueInstance str a) where
   displayBuilder _ = TB.fromString $ symbolVal (Proxy @str)
+
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to
 -- derive 'Display' from it.
 --
@@ -379,11 +385,11 @@ instance (Display a, Display b, Display c, Display d) => Display (a, b, c, d) wh
 -- but the truth is that there are not any laws to ask of the consumer that are not already enforced
 -- by the type system and the internals of the `Data.Text.Internal.Text` type.
 --
--- === "🚫 You should not derive Display for function types!"
+-- === "🚫 You should not try to display functions!"
 --
 -- Sometimes, when using the library, you may encounter this message:
 --
--- > • 🚫 You should not derive Display for function types!
+-- > • 🚫 You should not try to display functions!
 -- >   💡 Write a 'newtype' wrapper that represents your domain more accurately.
 -- >      If you are not consciously trying to use `display` on a function,
 -- >      make sure that you are not missing an argument somewhere.
@@ -399,10 +405,10 @@ instance (Display a, Display b, Display c, Display d) => Display (a, b, c, d) wh
 -- That is why it is best to wrap them in a newtype that can better
 -- express and enforce the domain.
 --
--- === "🚫 You should not derive Display for ByteStrings!"
+-- === "🚫 You should not try to display ByteStrings!"
 --
 -- An arbitrary ByteStrings cannot be safely converted to text without prior knowledge of its encoding.
 --
 -- As such, in order to avoid dangerously blind conversions, it is recommended to use a specialised
--- function such as `decodeUtf8'` or `decodeUtf8With` if you wish to turn a UTF8-encoded ByteString
+-- function such as `Data.Text.Encoding.decudeUtf8'` or `Data.Text.Encoding.decudeUtf8With` if you wish to turn a UTF8-encoded ByteString
 -- to Text.
