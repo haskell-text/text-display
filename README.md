@@ -1,6 +1,6 @@
 <p align="center">
 
-<img src="./images/logo.png" />
+<img src="https://raw.githubusercontent.com/haskell-text/text-display/main/images/logo.png" />
 </p>
 
 <p align="center">
