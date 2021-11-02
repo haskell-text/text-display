@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: ndmitchell/hlint
+          ref: '8e10b5143acf97fbdf9baff40ee2da93881e0bf8'
       - name: Set up Haskell
         id: setup-haskell
         uses: haskell/actions/setup@v1
