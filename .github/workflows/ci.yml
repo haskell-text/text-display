@@ -38,7 +38,8 @@ jobs:
         with:
           path: ./text-display
       - name: Run HLint
-        run: find text-display/src text-display/test -name "*.hs" -exec ${{ steps.setup-haskell.outputs.cabal-store }}/../bin/hlint {} + 
+        run: |
+          cd text-display && find src test -name "*.hs" -exec ${{ steps.setup-haskell.outputs.cabal-store }}/../bin/hlint {} + 
   native:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
