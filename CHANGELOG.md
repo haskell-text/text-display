@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [v0.0.1.0] – 20/10/2021
+## [v0.0.1.0] – 2/11/2021
 * Initial release
 
 [Unreleased]: https://github.com/kleidukos/text-display/compare/v0.0.1.0...HEAD
