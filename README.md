@@ -4,11 +4,14 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/Kleidukos/text-display/actions"></a>
+<a href="https://github.com/Kleidukos/text-display/actions">
   <img src="https://img.shields.io/github/workflow/status/Kleidukos/text-display/CI?style=flat-square" alt="CI badge" />
 </a>
 <a href="https://haskell.org">
   <img src="https://img.shields.io/badge/Made%20in-Haskell-%235e5086?logo=haskell&style=flat-square" alt="made with Haskell"/>
+</a>
+<a href="https://hackage.haskell.org/package/text-display">
+  <img src="https://img.shields.io/hackage/v/text-display?style=flat-square" alt="Hackage" />
 </a>
 </p>
 
@@ -24,7 +27,7 @@
 The `text-display` library offers a way for developers to print a textual representation of datatypes that does not
 have to abide by the rules of the [Show typeclass][Show].
 
-If you wish to learn more about how things are done and why, please read the [DESIGN.md](./DESIGN.md) file.
+If you wish to learn more about how things are done and why, please read the [DESIGN.md](https://github.com/haskell-text/text-display/blob/main/DESIGN.md) file.
 
 ## Examples
 
