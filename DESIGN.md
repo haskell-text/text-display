@@ -14,7 +14,7 @@ to the messy business of handling the textual representation of data structure, 
 The first of these choices is that it does not use the `Text` type up until the text is requested by the
 user. Internally, everything is built with the `Builder` type, a buffer used for efficiently building `Text`
 values, with an `append` operation running in `𝛰(1)`. In comparison, the `append` operation for `Text` has a 
-complexity of `𝛰(1)`.  
+complexity of `𝛰(n)`.  
 This is especially useful for types that are defined recursively, like lists or trees for example. 
 
 For example: 
