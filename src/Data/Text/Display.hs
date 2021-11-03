@@ -170,7 +170,7 @@ type family CannotDisplayBareFunctions :: Constraint where
 -- | 🚫 You should not try to display strict ByteStrings!
 --
 -- 💡 Always provide an explicit encoding.
--- Use 'Data.Text.Encoding.decudeUtf8'' or 'Data.Text.Encoding.decudeUtf8With' to convert from UTF-8
+-- Use 'Data.Text.Encoding.decodeUtf8'' or 'Data.Text.Encoding.decodeUtf8With' to convert from UTF-8
 --
 -- @since 0.0.1.0
 instance CannotDisplayByteStrings => Display ByteString where
@@ -179,7 +179,7 @@ instance CannotDisplayByteStrings => Display ByteString where
 -- | 🚫 You should not try to display lazy ByteStrings!
 --
 -- 💡 Always provide an explicit encoding.
--- Use 'Data.Text.Encoding.decudeUtf8'' or 'Data.Text.Encoding.decudeUtf8With' to convert from UTF-8
+-- Use 'Data.Text.Encoding.decodeUtf8'' or 'Data.Text.Encoding.decodeUtf8With' to convert from UTF-8
 --
 -- @since 0.0.1.0
 instance CannotDisplayByteStrings => Display BL.ByteString where
@@ -189,7 +189,7 @@ type family CannotDisplayByteStrings :: Constraint where
   CannotDisplayByteStrings = TypeError
     ( 'Text "🚫 You should not try to display ByteStrings!" ':$$:
       'Text "💡 Always provide an explicit encoding" ':$$:
-      'Text     "Use 'Data.Text.Encoding.decudeUtf8'' or 'Data.Text.Encoding.decudeUtf8With' to convert from UTF-8"
+      'Text     "Use 'Data.Text.Encoding.decodeUtf8'' or 'Data.Text.Encoding.decodeUtf8With' to convert from UTF-8"
     )
 
 -- | A utility function that surrounds the given 'Builder' with parentheses when the Bool parameter is True.
@@ -410,5 +410,5 @@ instance (Display a, Display b, Display c, Display d) => Display (a, b, c, d) wh
 -- An arbitrary ByteStrings cannot be safely converted to text without prior knowledge of its encoding.
 --
 -- As such, in order to avoid dangerously blind conversions, it is recommended to use a specialised
--- function such as `Data.Text.Encoding.decudeUtf8'` or `Data.Text.Encoding.decudeUtf8With` if you wish to turn a UTF8-encoded ByteString
+-- function such as `Data.Text.Encoding.decodeUtf8'` or `Data.Text.Encoding.decodeUtf8With` if you wish to turn a UTF8-encoded ByteString
 -- to Text.
