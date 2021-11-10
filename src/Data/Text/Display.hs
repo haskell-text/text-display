@@ -41,12 +41,12 @@ import Data.List.NonEmpty
 import Data.Text (Text)
 import Data.Text.Lazy.Builder (Builder)
 import Data.Word
-import GHC.Show (showLitString)
 import GHC.TypeLits
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.Text.Lazy.Builder.Int as TB
 import qualified Data.Text.Lazy.Builder.RealFloat as TB
+import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Data.Proxy
 
@@ -67,13 +67,12 @@ class Display a where
   --
   -- === Example
   --
+  -- > import qualified Data.Text.Lazy.Builder as TB
+  -- >
   -- > instance Display Char where
-  -- >   displayBuilder '\'' = "'\\''"
-  -- >   displayBuilder c = "'" <> TB.singleton c <> "\'"
-  -- >   -- 'displayList' is overloaded, so that when the @Display [a]@ instance calls 'displayList',
-  -- >   -- we end up with a nice string enclosed between double quotes.
-  -- >   displayList cs = TB.fromString $ "\"" <> showLitString cs "\""
-  --
+  -- >   displayBuilder c = TB.fromText $ T.singleton c
+  -- >   displayList cs = TB.fromText $ T.pack cs
+  -- >
   -- > instance Display a => Display [a] where
   -- >   -- In this instance, 'displayBuilder' is defined in terms of 'displayList', which for most types
   -- >   -- is defined as the default written in the class declaration.
@@ -274,12 +273,19 @@ deriving via (ShowInstance ()) instance Display ()
 deriving via (ShowInstance Bool) instance Display Bool
 
 -- | @since 0.0.1.0
+-- 'displayList' is overloaded, so that when the @Display [a]@ instance calls 'displayList',
+-- we end up with a nice string instead of a list of chars between brackets.
+--
+-- >>> display [1, 2, 3]
+-- "[1,2,3]"
+--
+-- >>> display ['h', 'e', 'l', 'l', 'o']
+-- "hello"
 instance Display Char where
-  displayBuilder '\'' = "'\\''"
-  displayBuilder c = "'" <> TB.singleton c <> "\'"
-  -- 'displayList' is overloaded, so that when the @Display [a]@ instance calls 'displayList',
-  -- we end up with a nice string enclosed between double quotes.
-  displayList cs = TB.fromString $ "\"" <> showLitString cs "\""
+  -- This instance's implementation is used in the haddocks of the typeclass.
+  -- If you change it, reflect the change in the documentation.
+  displayBuilder c = TB.fromText $ T.singleton c
+  displayList cs = TB.fromText $ T.pack cs
 
 -- | Lazy 'TL.Text'
 --

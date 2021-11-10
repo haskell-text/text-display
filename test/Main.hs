@@ -8,8 +8,9 @@ module Main where
 
 import Data.ByteString
 import Data.List.NonEmpty
-import Data.Text (Text)
 import Test.Hspec
+import Test.Hspec.QuickCheck
+import Data.Text.Arbitrary
 import Test.ShouldNotTypecheck (shouldNotTypecheck)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
@@ -34,7 +35,7 @@ data OpaqueType = OpaqueType Int
 
 spec :: Spec
 spec = do
-  describe "Display Tests" $ do
+  describe "Display Tests:" $ do
     it "Display instance for Text stays the same" $
       display ("3" :: Text) `shouldBe` ("3" :: Text)
     it "Deriving via its own Show instance works" $
@@ -59,20 +60,24 @@ spec = do
       T.unpack (display nestedMaybe) `shouldBe` show nestedMaybe
     it "Nothing instance is equivalent to Show" $ do
       T.unpack (display (Nothing @Bool)) `shouldBe` show (Nothing @Bool)
-    it "String instance is equivalent to Show" $ do
-      let string = "Bonjour \"tout le monde\" !" :: String
-      T.unpack (display string) `shouldBe` show string
-    it "Char 'c' instance is equivalent to Show" $ do
-      T.unpack (display 'c') `shouldBe` show 'c'
-    it "Char '\'' instance is equivalent to Show" $ do
-      T.unpack (display '\'') `shouldBe` show '\''
+    it "Char '\'' instance is equivalent to Text" $ do
+      display '\'' `shouldBe` T.singleton '\''
     it "2-Tuple instance is equivalent to Show" $ do
       let tuple = (1 :: Int, True)
       T.unpack (display tuple) `shouldBe` show tuple
     it "3-Tuple instance is equivalent to Show" $ do
       let tuple = (1 :: Int, True, "hahahha" :: String)
-      T.unpack (display tuple) `shouldBe` show tuple
+      display tuple `shouldBe` "(" <> display (1 :: Int) <> "," <> display True <> "," <> display @String "hahahha" <> ")"
 
+  describe "Display props:" $ do
+    prop "Text instance stays the same" $ do
+      \string -> display (string :: Text) `shouldBe` string
+    prop "String instance is equivalent to Text" $ do
+      \string -> display (string :: String) `shouldBe` T.pack string
+    prop "Chars are packed" $
+      \c -> display (c :: Char) `shouldBe` T.singleton c
+
+  describe "Forbidden instances" $ do
     it "Should not compile for a function instance" $
       shouldNotTypecheck (display id) `shouldThrow` anyErrorCall
     it "Should not compile for ByteStrings" $
@@ -80,7 +85,11 @@ spec = do
        in shouldNotTypecheck (display bs) `shouldThrow` anyErrorCall
 
   describe "displayParen tests" $ do
-    it "surrounds with parens when True" $
+    it "Surrounds with parens when True" $
       displayParen True "foo" `shouldBe` "(foo)"
-    it "doesn't surround with parens when False" $
+    it "Doesn't surround with parens when False" $
       displayParen False "foo" `shouldBe` "foo"
+    it "Surrounds deeply-nested Maybes with a prec of 10" $
+      displayPrec 10 (Just (Just (Just (3 :: Int)))) `shouldBe` "Just (Just (Just 3))"
+    it "Surrounds deeply-nested Maybes with a prec of 11" $
+      displayPrec 11 (Just (Just (Just (3 :: Int)))) `shouldBe` "(Just (Just (Just 3)))"
