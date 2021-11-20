@@ -41,8 +41,8 @@ library
   hs-source-dirs:  src
   exposed-modules: Data.Text.Display
   build-depends:
-    , base        >= 4.12 && <= 5
-    , bytestring  ^>=0.11
+    , base         >=4.12 && <= 5
+    , bytestring  ^>=0.10
     , text        ^>=1.2
 
 test-suite text-display-test
