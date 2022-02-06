@@ -51,17 +51,17 @@ type Display :: * -> Constraint
 ```
 
 1. This is the class definition, with its methods.
-   * `displayBuilder` produces a `Builder` value out of an `a`.  
-     This is the most common way to implement `Display` when you just need to render something for an end-user.
-
-   * `displayList` produces a `Builder` value out of a list of `a`.
-     This method has a default implementation provided by the library, but it may be overloaded in case you
-     wish to render the list of a particular type in a certain way, like how `[Char]` is rendered to `"this nice user-readable string"` instead of something `['l', 'i', 'k', 'e', ' ', 't', 'h', 'i', 's']`.
-
-   * `displayPrec` takes a precedence value with the value to be transformed, and produces a `Builder`.  
-     It has a more advanced target audience in mind, and is used when printing nested datatypes calls for a clarification of operator and constructor precedence.
-     If the precedence is not set, we cannot say that we want parentheses surrounding an inner value, like `"Just (Just 5)"`, and indeed, may find ourselves
-     with a result like `"Just Just 5"`, which is unacceptable.
+    * `displayBuilder` produces a `Builder` value out of an `a`.  
+       This is the most common way to implement `Display` when you just need to render something for an end-user.
+  
+    * `displayList` produces a `Builder` value out of a list of `a`.
+       This method has a default implementation provided by the library, but it may be overloaded in case you
+       wish to render the list of a particular type in a certain way, like how `[Char]` is rendered to `"this nice user-readable string"` instead of something `['l', 'i', 'k', 'e', ' ', 't', 'h', 'i', 's']`.
+  
+    * `displayPrec` takes a precedence value with the value to be transformed, and produces a `Builder`.  
+       It has a more advanced target audience in mind, and is used when printing nested datatypes calls for a clarification of operator and constructor precedence.
+       If the precedence is not set, we cannot say that we want parentheses surrounding an inner value, like `"Just (Just 5)"`, and indeed, may find ourselves
+       with a result like `"Just Just 5"`, which is unacceptable.
 
 2. This is the minimal implementation a user of the library must provide in order to implement `Display` for
 their datatype.
