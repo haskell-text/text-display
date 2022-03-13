@@ -1,8 +1,17 @@
 # CHANGELOG
 
-## [Unreleased]
+## [v0.0.2.0] – 13/03/2022
+
+This is an experimental release.
+
+* Typo corrections, documentation improvements
+* Fix the String instance (https://github.com/haskell-text/text-display/pull/17)
+* Bump dependencies
 
 ## [v0.0.1.0] – 2/11/2021
+
+This is an experimental release.
+
 * Initial release
 
 [Unreleased]: https://github.com/kleidukos/text-display/compare/v0.0.1.0...HEAD
