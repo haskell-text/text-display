@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [v0.0.3.0] - DD/MM/YYY
+
+This is an experimental release.
+
+* Support for text-2.0
+
+
 ## [v0.0.2.0] – 13/03/2022
 
 This is an experimental release.
