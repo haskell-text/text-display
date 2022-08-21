@@ -16,6 +16,10 @@ test: ## Run the test suite
 lint: ## Run the code linter (HLint)
 	@find test src -name "*.hs" | parallel -j $(PROCS) -- hlint --refactor-options="-i" --refactor {}
 
+style: ## Run the code styler (stylish-haskell)
+	@fourmolu -q --mode inplace test src
+	@cabal-fmt -i *.cabal
+
 check:
 	@./scripts/ci-check.sh
 
