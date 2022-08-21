@@ -1,11 +1,11 @@
 # CHANGELOG
 
-## [v0.0.3.0] - DD/MM/YYY
+## [v0.0.3.0] - 21/08/2022
 
 This is an experimental release.
 
 * Support for text-2.0
-
+* Support for GHC 9.4
 
 ## [v0.0.2.0] – 13/03/2022
 
@@ -24,3 +24,4 @@ This is an experimental release.
 [Unreleased]: https://github.com/kleidukos/text-display/compare/v0.0.1.0...HEAD
 [v0.0.1.0]: https://github.com/kleidukos/text-display/releases/tag/v0.0.1.0
 [v0.0.2.0]: https://github.com/kleidukos/text-display/releases/tag/v0.0.2.0
+[v0.0.3.0]: https://github.com/kleidukos/text-display/releases/tag/v0.0.3.0

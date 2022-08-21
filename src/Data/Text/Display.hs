@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE StrictData #-}
@@ -10,51 +10,54 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-{-|
-  Module      : Data.Text.Display
-  Copyright   : © Hécate Moonlight, 2021
-  License     : MIT
-  Maintainer  : hecate@glitchbra.in
-  Stability   : stable
-
-  Use 'display' to produce user-facing text
-
--}
+-- |
+--  Module      : Data.Text.Display
+--  Copyright   : © Hécate Moonlight, 2021
+--  License     : MIT
+--  Maintainer  : hecate@glitchbra.in
+--  Stability   : stable
+--
+--  Use 'display' to produce user-facing text
 module Data.Text.Display
   ( -- * Documentation
     display
-  , Display(..)
-  , -- * Deriving your instance automatically
-    ShowInstance(..)
-  , OpaqueInstance(..)
-  , -- * Writing your instance by hand
-    displayParen
-  -- * Design choices
-  -- $designChoices
-  ) where
+  , Display (..)
+
+    -- * Deriving your instance automatically
+  , ShowInstance (..)
+  , OpaqueInstance (..)
+
+    -- * Writing your instance by hand
+  , displayParen
+
+    -- * Design choices
+    -- $designChoices
+  )
+where
 
 import Control.Exception hiding (TypeError)
 import Data.ByteString
+import qualified Data.ByteString.Lazy as BL
 import Data.Int
 import Data.Kind
 import Data.List.NonEmpty
+import Data.Proxy
 import Data.Text (Text)
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
 import Data.Text.Lazy.Builder (Builder)
-import Data.Word
-import GHC.TypeLits
-import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.Text.Lazy.Builder.Int as TB
 import qualified Data.Text.Lazy.Builder.RealFloat as TB
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as TL
-import Data.Proxy
+import Data.Word
+import GHC.TypeLits
 
 -- | A typeclass for user-facing output.
 --
 -- @since 0.0.1.0
 class Display a where
   {-# MINIMAL displayBuilder | displayPrec #-}
+
   -- | Implement this method to describe how to convert your value to 'Builder'.
   displayBuilder :: a -> Builder
   displayBuilder = displayPrec 0
@@ -91,11 +94,11 @@ class Display a where
   -- > → Custom `displayList`
   displayList :: [a] -> Builder
   displayList [] = "[]"
-  displayList (x:xs) = displayList' xs ("[" <> displayBuilder x)
+  displayList (x : xs) = displayList' xs ("[" <> displayBuilder x)
     where
       displayList' :: [a] -> Builder -> Builder
-      displayList' [] acc     = acc <> "]"
-      displayList' (y:ys) acc = displayList' ys (acc <> "," <> displayBuilder y)
+      displayList' [] acc = acc <> "]"
+      displayList' (y : ys) acc = displayList' ys (acc <> "," <> displayBuilder y)
 
   -- | The method 'displayPrec' allows you to write instances that
   -- require nesting. The precedence parameter can be thought of as a
@@ -127,12 +130,12 @@ class Display a where
   -- > infix 5 :*: -- arbitrary choice of precedence
   -- > instance (Display a, Display b) => Display (Pair a b) where
   -- >   displayPrec prec (a :*: b) = displayParen (prec > 5) $ displayPrec 6 a <> " :*: " <> displayPrec 6 b
-  displayPrec
-    :: Int -- ^ The precedence level passed in by the surrounding context
-    -> a
-    -> Builder
+  displayPrec ::
+    -- | The precedence level passed in by the surrounding context
+    Int ->
+    a ->
+    Builder
   displayPrec _ = displayBuilder
-
 
 -- | Convert a value to a readable 'Text'.
 --
@@ -159,12 +162,13 @@ instance CannotDisplayBareFunctions => Display (a -> b) where
 
 -- | @since 0.0.1.0
 type family CannotDisplayBareFunctions :: Constraint where
-  CannotDisplayBareFunctions = TypeError
-    ( 'Text "🚫 You should not try to display functions!" ':$$:
-      'Text "💡 Write a 'newtype' wrapper that represents your domain more accurately." ':$$:
-      'Text "   If you are not consciously trying to use `display` on a function," ':$$:
-      'Text "   make sure that you are not missing an argument somewhere."
-    )
+  CannotDisplayBareFunctions =
+    TypeError
+      ( 'Text "🚫 You should not try to display functions!"
+          ':$$: 'Text "💡 Write a 'newtype' wrapper that represents your domain more accurately."
+          ':$$: 'Text "   If you are not consciously trying to use `display` on a function,"
+          ':$$: 'Text "   make sure that you are not missing an argument somewhere."
+      )
 
 -- | 🚫 You should not try to display strict ByteStrings!
 --
@@ -185,11 +189,12 @@ instance CannotDisplayByteStrings => Display BL.ByteString where
   displayBuilder = undefined
 
 type family CannotDisplayByteStrings :: Constraint where
-  CannotDisplayByteStrings = TypeError
-    ( 'Text "🚫 You should not try to display ByteStrings!" ':$$:
-      'Text "💡 Always provide an explicit encoding" ':$$:
-      'Text     "Use 'Data.Text.Encoding.decodeUtf8'' or 'Data.Text.Encoding.decodeUtf8With' to convert from UTF-8"
-    )
+  CannotDisplayByteStrings =
+    TypeError
+      ( 'Text "🚫 You should not try to display ByteStrings!"
+          ':$$: 'Text "💡 Always provide an explicit encoding"
+          ':$$: 'Text "Use 'Data.Text.Encoding.decodeUtf8'' or 'Data.Text.Encoding.decodeUtf8With' to convert from UTF-8"
+      )
 
 -- | A utility function that surrounds the given 'Builder' with parentheses when the Bool parameter is True.
 -- Useful for writing instances that may require nesting. See the 'displayPrec' documentation for more
@@ -237,7 +242,8 @@ instance KnownSymbol str => Display (OpaqueInstance str a) where
 newtype ShowInstance (a :: Type)
   = ShowInstance a
   deriving newtype
-    ( Show -- ^ @since 0.0.1.0
+    ( -- | @since 0.0.1.0
+      Show
     )
 
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to derive 'Display' from it.
@@ -301,9 +307,10 @@ instance Display Text where
 
 -- | @since 0.0.1.0
 instance Display a => Display [a] where
-  {-# SPECIALISE instance Display [String] #-}
-  {-# SPECIALISE instance Display [Char] #-}
-  {-# SPECIALISE instance Display [Int] #-}
+  {-# SPECIALIZE instance Display [String] #-}
+  {-# SPECIALIZE instance Display [Char] #-}
+  {-# SPECIALIZE instance Display [Int] #-}
+
   -- In this instance, 'displayBuilder' is defined in terms of 'displayList', which for most types
   -- is defined as the default written in the class declaration.
   -- But when @a ~ Char@, there is an explicit implementation that is selected instead, which
@@ -373,15 +380,15 @@ deriving via (ShowInstance SomeException) instance Display SomeException
 
 -- | @since 0.0.1.0
 instance (Display a, Display b) => Display (a, b) where
-  displayBuilder (a, b) = "(" <> displayBuilder a <>  "," <> displayBuilder b <> ")"
+  displayBuilder (a, b) = "(" <> displayBuilder a <> "," <> displayBuilder b <> ")"
 
 -- | @since 0.0.1.0
 instance (Display a, Display b, Display c) => Display (a, b, c) where
-  displayBuilder (a, b, c) = "(" <> displayBuilder a <>  "," <> displayBuilder b <> "," <> displayBuilder c <> ")"
+  displayBuilder (a, b, c) = "(" <> displayBuilder a <> "," <> displayBuilder b <> "," <> displayBuilder c <> ")"
 
 -- | @since 0.0.1.0
 instance (Display a, Display b, Display c, Display d) => Display (a, b, c, d) where
-  displayBuilder (a, b, c, d) = "(" <> displayBuilder a <>  "," <> displayBuilder b <> "," <> displayBuilder c <> "," <> displayBuilder d <> ")"
+  displayBuilder (a, b, c, d) = "(" <> displayBuilder a <> "," <> displayBuilder b <> "," <> displayBuilder c <> "," <> displayBuilder d <> ")"
 
 -- $designChoices
 --

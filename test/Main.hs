@@ -1,19 +1,19 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE DataKinds #-}
 {-# OPTIONS_GHC -fdefer-type-errors -Wno-deferred-type-errors #-}
 
 module Main where
 
 import Data.ByteString
 import Data.List.NonEmpty
-import Test.Hspec
-import Test.Hspec.QuickCheck
-import Data.Text.Arbitrary
-import Test.ShouldNotTypecheck (shouldNotTypecheck)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
+import Data.Text.Arbitrary
+import Test.Hspec
+import Test.Hspec.QuickCheck
+import Test.ShouldNotTypecheck (shouldNotTypecheck)
 
 import Data.Text.Display
 
@@ -21,8 +21,8 @@ main :: IO ()
 main = hspec spec
 
 data AutomaticallyDerived = AD
-  deriving stock Show
-  deriving Display via (ShowInstance AutomaticallyDerived)
+  deriving stock (Show)
+  deriving (Display) via (ShowInstance AutomaticallyDerived)
 
 data ManualType = MT Int
 
@@ -30,7 +30,8 @@ instance Display ManualType where
   displayPrec prec (MT i) = displayParen (prec > 10) $ "MT " <> displayPrec 11 i
 
 data OpaqueType = OpaqueType Int
-  deriving Display
+  deriving
+    (Display)
     via (OpaqueInstance "<opaque>" OpaqueType)
 
 spec :: Spec
