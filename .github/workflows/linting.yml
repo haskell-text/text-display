@@ -16,7 +16,6 @@ jobs:
         pattern: |
           src/**/*.hs
           test/**/*.hs
-          app/**/*.hs
 
   hlint:
     runs-on: ubuntu-latest
@@ -26,10 +25,10 @@ jobs:
     - name: 'Set up HLint'
       uses: rwe/actions-hlint-setup@v1
       with:
-        version: '3.3.6'
+        version: '3.4.1'
 
     - name: 'Run HLint'
       uses: rwe/actions-hlint-run@v1
       with:
-        path: '["src/", "app/", "test/"]'
+        path: '["src/", "test/"]'
         fail-on: warning
