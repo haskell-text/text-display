@@ -45,7 +45,7 @@ library
   build-depends:
     , base        >=4.12 && <=5
     , bytestring  >=0.10 && <0.12
-    , text        <2.0
+    , text        >=2.0
 
 test-suite text-display-test
   import:         common-extensions
