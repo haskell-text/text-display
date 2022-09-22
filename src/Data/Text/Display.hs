@@ -94,11 +94,10 @@ class Display a where
   -- > → Custom `displayList`
   displayList :: [a] -> Builder
   displayList [] = "[]"
-  displayList (x : xs) = displayList' xs ("[" <> displayBuilder x)
+  displayList (x : xs) = "[" <> displayBuilder x <> foldMap go xs <> "]"
     where
-      displayList' :: [a] -> Builder -> Builder
-      displayList' [] acc = acc <> "]"
-      displayList' (y : ys) acc = displayList' ys (acc <> "," <> displayBuilder y)
+      go :: a -> Builder
+      go y = "," <> displayBuilder y
 
   -- | The method 'displayPrec' allows you to write instances that
   -- require nesting. The precedence parameter can be thought of as a

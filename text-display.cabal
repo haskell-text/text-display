@@ -55,6 +55,7 @@ test-suite text-display-test
   build-depends:
     , base
     , bytestring
+    , deepseq
     , hspec
     , quickcheck-text
     , should-not-typecheck
