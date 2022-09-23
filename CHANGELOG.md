@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [Unreleased]
+
+* Fix `displayList` by making it lazier (https://github.com/haskell-text/text-display/pull/27)
+
 ## [v0.0.3.0] - 21/08/2022
 
 This is an experimental release.

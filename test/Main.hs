@@ -6,11 +6,18 @@
 
 module Main where
 
+import Control.DeepSeq
+import Control.Exception
+import Control.Monad
 import Data.ByteString
 import Data.List.NonEmpty
 import qualified Data.List.NonEmpty as NE
+import Data.Maybe
 import qualified Data.Text as T
 import Data.Text.Arbitrary
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Builder as TB
+import System.Timeout
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.ShouldNotTypecheck (shouldNotTypecheck)
@@ -34,6 +41,14 @@ data OpaqueType = OpaqueType Int
     (Display)
     via (OpaqueInstance "<opaque>" OpaqueType)
 
+-- | @v \`shouldEvaluateWithin\` n@ sets the expectation that evaluating @v@
+-- should take no longer than @n@ microseconds.
+shouldEvaluateWithin :: (HasCallStack, NFData a) => a -> Int -> Expectation
+shouldEvaluateWithin a n = do
+  res <- timeout n (evaluate $ force a)
+  when (isNothing res) $ do
+    expectationFailure ("evaluation timed out in " <> show n <> " microseconds")
+
 spec :: Spec
 spec = do
   describe "Display Tests:" $ do
@@ -51,6 +66,9 @@ spec = do
     it "Single-element List instance is equivalent to Show" $ do
       let list = [1] :: [Int]
       T.unpack (display list) `shouldBe` show list
+    it "List instance is streamed lazily" $ do
+      let list = [1 ..] :: [Int]
+      TL.take 20 (TB.toLazyText $ displayBuilder list) `shouldEvaluateWithin` 100000
     it "NonEmpty instance is equivalent to Show" $ do
       let ne = NE.fromList [1 .. 5] :: NonEmpty Int
       T.unpack (display ne) `shouldBe` show ne
