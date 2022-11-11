@@ -129,11 +129,11 @@ class Display a where
   -- > infix 5 :*: -- arbitrary choice of precedence
   -- > instance (Display a, Display b) => Display (Pair a b) where
   -- >   displayPrec prec (a :*: b) = displayParen (prec > 5) $ displayPrec 6 a <> " :*: " <> displayPrec 6 b
-  displayPrec ::
-    -- | The precedence level passed in by the surrounding context
-    Int ->
-    a ->
-    Builder
+  displayPrec
+    :: Int
+    -- ^ The precedence level passed in by the surrounding context
+    -> a
+    -> Builder
   displayPrec _ = displayBuilder
 
 -- | Convert a value to a readable 'Text'.
@@ -241,8 +241,8 @@ instance KnownSymbol str => Display (OpaqueInstance str a) where
 newtype ShowInstance (a :: Type)
   = ShowInstance a
   deriving newtype
-    ( -- | @since 0.0.1.0
-      Show
+    ( Show
+      -- ^ @since 0.0.1.0
     )
 
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to derive 'Display' from it.

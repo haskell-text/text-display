@@ -12,7 +12,9 @@ author:             Hécate Moonlight
 maintainer:         Hécate Moonlight
 license:            MIT
 build-type:         Simple
-tested-with:        GHC ==8.8.* || ==8.10.* || ==9.0.* || ==9.2.* || ==9.4.*
+tested-with:
+  GHC >=8.8 && <8.9 || >=8.10 && <8.11 || >=9.0 && <9.1 || >=9.2 && <9.3 || >=9.4 && <9.5
+
 extra-source-files:
   CHANGELOG.md
   LICENSE
@@ -41,7 +43,7 @@ library
   hs-source-dirs:  src
   exposed-modules: Data.Text.Display
   build-depends:
-    , base        >=4.12 && <=5
+    , base        >=4.12 && <5.0
     , bytestring  >=0.10 && <0.12
     , text        >=2.0
 
