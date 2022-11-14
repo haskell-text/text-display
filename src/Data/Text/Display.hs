@@ -49,6 +49,7 @@ import Data.Text.Lazy.Builder (Builder)
 import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.Text.Lazy.Builder.Int as TB
 import qualified Data.Text.Lazy.Builder.RealFloat as TB
+import Data.Void (Void)
 import Data.Word
 import GHC.TypeLits
 
@@ -273,6 +274,9 @@ instance RealFloat e => Display (DisplayRealFloat e) where
 
 -- | @since 0.0.1.0
 deriving via (ShowInstance ()) instance Display ()
+
+-- | @since 0.0.3.0
+deriving via (ShowInstance Void) instance Display Void
 
 -- | @since 0.0.1.0
 deriving via (ShowInstance Bool) instance Display Bool
