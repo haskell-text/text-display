@@ -4,6 +4,7 @@
 
 * Fix `displayList` by making it lazier (https://github.com/haskell-text/text-display/pull/27)
 * Add Display instance for `Void` (https://github.com/haskell-text/text-display/pull/28)
+* Set an OVERLAPPABLE instance to improve the presentation of GHC-39999 error
 
 ## [v0.0.3.0] - 21/08/2022
 

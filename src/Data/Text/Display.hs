@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -149,6 +150,17 @@ class Display a where
 -- @since 0.0.1.0
 display :: Display a => a -> Text
 display a = TL.toStrict $ TB.toLazyText $ displayBuilder a
+
+instance
+  {-# OVERLAPPABLE #-}
+  TypeError
+    ( 'Text "⚠️ Type " ':<>: 'ShowType a ':<>: 'Text " does not have an instance of Display."
+        ':$$: 'Text "💡 Make sure you have written or derived an instance of the Display typeclass for " ':<>: 'ShowType a ':<>: 'Text "."
+        ':$$: 'Text "   See https://errors.haskell.org/messages/GHC-39999 for more information."
+    )
+  => Display a
+  where
+  displayBuilder = undefined
 
 -- | 🚫 You should not try to display functions!
 --
