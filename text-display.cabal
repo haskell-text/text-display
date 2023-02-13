@@ -13,12 +13,14 @@ maintainer:         Hécate Moonlight
 license:            MIT
 build-type:         Simple
 tested-with:
-  GHC ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2
+  GHC ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.5 || ==9.4.4
 
 extra-source-files:
-  CHANGELOG.md
   LICENSE
   README.md
+
+extra-doc-files:
+  CHANGELOG.md
 
 source-repository head
   type:     git
