@@ -2,7 +2,7 @@ deps: ## Install the dependencies of the backend
 	@cabal build --only-dependencies
 
 build: ## Build the project in fast mode
-	@cabal build -O0
+	@cabal build
 
 clean: ## Remove compilation artifacts
 	@cabal clean
@@ -14,7 +14,7 @@ test: ## Run the test suite
 	@cabal test
 
 lint: ## Run the code linter (HLint)
-	@find test src -name "*.hs" | parallel -j $(PROCS) -- hlint --refactor-options="-i" --refactor {}
+	@find test src -name "*.hs" | xargs -P $(PROCS) -I {} hlint --refactor-options="-i" --refactor {}
 
 style: ## Run the code styler (stylish-haskell)
 	@fourmolu -q --mode inplace test src
