@@ -4,12 +4,14 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/Kleidukos/text-display/actions">
-  <img src="https://img.shields.io/github/workflow/status/Kleidukos/text-display/CI?style=flat-square" alt="CI badge" />
+<a href="https://github.com/haskell-text/text-display/actions">
+  <img src="https://img.shields.io/github/actions/workflow/status/haskell-text/text-display/ci.yml?style=flat-square" alt="CI badge" />
 </a>
+
 <a href="https://haskell.org">
   <img src="https://img.shields.io/badge/Made%20in-Haskell-%235e5086?logo=haskell&style=flat-square" alt="made with Haskell"/>
 </a>
+
 <a href="https://hackage.haskell.org/package/text-display">
   <img src="https://img.shields.io/hackage/v/text-display?style=flat-square" alt="Hackage" />
 </a>
