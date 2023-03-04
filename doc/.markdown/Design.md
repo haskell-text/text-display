@@ -1,6 +1,6 @@
 # Library design 
 
-## A “Lawless Typeclass”[^1]
+## A “Lawless Typeclass”[^lois]
 
 The `Display` typeclass does not contain any law. This is a controversial choice for some people,
 but the truth is that there are not any laws to ask of the consumer that are not already enforced
@@ -30,7 +30,6 @@ display $ Node 1 [Node 2 [], Node 3 [], Node 4 []]
 -- => "1[2[],3[],4[]]"
 ```
 
-
 ## The four siblings: `display`, `displayPrec`, `displayList`, and `displayBuilder`
 
 If you take a close look at the `Display` typeclass, you will see the following information:
@@ -47,7 +46,8 @@ type Display :: * -> Constraint
 
     ┌──
  2. │  {-# MINIMAL displayBuilder | displayPrec #-}
-    └─
+    └──
+
 ```
 
 1. This is the class definition, with its methods.
@@ -61,7 +61,7 @@ type Display :: * -> Constraint
     * `displayPrec` takes a precedence value with the value to be transformed, and produces a `Builder`.  
        It has a more advanced target audience in mind, and is used when printing nested datatypes calls for a clarification of operator and constructor precedence.
        If the precedence is not set, we cannot say that we want parentheses surrounding an inner value, like `"Just (Just 5)"`, and indeed, may find ourselves
-       with a result like `"Just Just 5"`, which is unacceptable.
+       with a result like `"Just Just 5"`, which is unacceptable.
 
 2. This is the minimal implementation a user of the library must provide in order to implement `Display` for
 their datatype.
@@ -108,4 +108,4 @@ As such, in order to avoid dangerously blind conversions, it is recommended to u
 function such as `decodeUtf8'` or `decodeUtf8Strict` if you wish to turn a UTF8-encoded ByteString
 to Text.
 
-[^1]: _"mort aux lois, vive l'anarchie"_ - Georges Brassens
+[^lois]: _"mort aux lois, vive l'anarchie"_ - Georges Brassens

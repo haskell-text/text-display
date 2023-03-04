@@ -19,7 +19,24 @@ extra-source-files:
   LICENSE
   README.md
 
-extra-doc-files:    CHANGELOG.md
+extra-doc-files:
+  ./doc/book/*.css
+  ./doc/book/*.html
+  ./doc/book/*.js
+  ./doc/book/css/*.css
+  ./doc/book/favicon.png
+  ./doc/book/favicon.svg
+  ./doc/book/FontAwesome/css/font-awesome.css
+  ./doc/book/FontAwesome/fonts/fontawesome-webfont.woff2
+  ./doc/book/fonts/*.css
+  ./doc/book/fonts/*.woff2
+  ./doc/book/searchindex.json
+  CHANGELOG.md
+
+flag book
+  description: Enable the generation of the book
+  default:     False
+  manual:      True
 
 source-repository head
   type:     git
@@ -32,8 +49,7 @@ common common-ghc-options
   ghc-options:
     -Wall -Wcompat -Widentities -Wincomplete-record-updates
     -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
-    -fhide-source-paths -Wno-unused-do-bind -fwrite-ide-info
-    -hiedir=.hie -haddock
+    -fhide-source-paths -Wno-unused-do-bind -funbox-strict-fields
 
 common common-rts-options
   ghc-options: -rtsopts -threaded -with-rtsopts=-N
@@ -47,6 +63,26 @@ library
     , base        >=4.12 && <5.0
     , bytestring  >=0.10 && <0.12
     , text        >=2.0
+
+executable book
+  import:         common-extensions
+  import:         common-ghc-options
+  import:         common-rts-options
+  main-is:        Main.hs
+  hs-source-dirs: doc/src
+
+  if !flag(book)
+    buildable: False
+
+  build-depends:
+    , base
+    , containers
+    , directory
+    , literatex
+    , shake
+    , strict
+    , text
+    , text-display
 
 test-suite text-display-test
   import:         common-extensions

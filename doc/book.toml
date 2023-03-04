@@ -1,0 +1,10 @@
+[book]
+authors = ["Hécate Moonlight"]
+language = "en"
+multilingual = false
+src = ".markdown"
+title = "text-display"
+create-missing = false
+
+[output.html]
+git-repository-url = "https://github.com/haskell-text/text-display/tree/main/docs"
