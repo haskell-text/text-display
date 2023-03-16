@@ -50,6 +50,7 @@ common common-ghc-options
     -Wall -Wcompat -Widentities -Wincomplete-record-updates
     -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
     -fhide-source-paths -Wno-unused-do-bind -funbox-strict-fields
+    -Wunused-packages
 
 common common-rts-options
   ghc-options: -rtsopts -threaded -with-rtsopts=-N
@@ -76,13 +77,9 @@ executable book
 
   build-depends:
     , base
-    , containers
     , directory
     , literatex
     , shake
-    , strict
-    , text
-    , text-display
 
 test-suite text-display-test
   import:         common-extensions
