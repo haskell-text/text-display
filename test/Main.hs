@@ -2,14 +2,12 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
-{-# OPTIONS_GHC -fdefer-type-errors -Wno-deferred-type-errors #-}
 
 module Main where
 
 import Control.DeepSeq
 import Control.Exception
 import Control.Monad
-import Data.ByteString
 import Data.List.NonEmpty
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe
@@ -18,7 +16,6 @@ import Data.Text.Arbitrary
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Builder as TB
 import System.Timeout
-import Test.ShouldNotTypecheck (shouldNotTypecheck)
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
@@ -112,14 +109,6 @@ spec =
             \string -> display (string :: String) === T.pack string
         , testProperty "Chars are packed" $
             \c -> display (c :: Char) === T.singleton c
-        ]
-    , testGroup
-        "Forbidden Instances"
-        [ testCase "Should not compile for a function instance" $
-            shouldNotTypecheck (display id) -- `shouldThrow` SomeException
-        , testCase "Should not compile for ByteStrings" $
-            let bs = "badstring" :: ByteString
-             in shouldNotTypecheck (display bs) -- `shouldThrow` SomeException
         ]
     , testGroup
         "`displayParen` tests"

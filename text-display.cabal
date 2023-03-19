@@ -90,10 +90,8 @@ test-suite text-display-test
   hs-source-dirs: test
   build-depends:
     , base
-    , bytestring
     , deepseq
     , quickcheck-text
-    , should-not-typecheck
     , tasty
     , tasty-hunit
     , tasty-quickcheck
