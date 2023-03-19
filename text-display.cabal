@@ -92,8 +92,10 @@ test-suite text-display-test
     , base
     , bytestring
     , deepseq
-    , hspec
     , quickcheck-text
     , should-not-typecheck
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
     , text
     , text-display
