@@ -35,7 +35,7 @@ have to abide by the rules of the [Show typeclass][Show].
 * [Comparison with other libraries][comparison]
 
 [Show]: https://hackage.haskell.org/package/base/docs/Text-Show.html#v:Show
-[tutorial]: https://hackage.haskell.org/package/text-display/src/docs/book/Tutorial.html
-[design]: https://hackage.haskell.org/package/text-display/src/docs/book/Design.html
+[tutorial]: https://hackage.haskell.org/package/text-display/docs/doc/book/Tutorial.html
+[design]: https://hackage.haskell.org/package/text-display/docs/doc/book/Design.html
 [reference]: https://hackage.haskell.org/package/text-display/docs/Data-Text-Display.html
-[comparison]: https://hackage.haskell.org/package/text-display/src/docs/book/Comparison.html
+[comparison]: https://hackage.haskell.org/package/text-display/docs/doc/book/Comparison.html
