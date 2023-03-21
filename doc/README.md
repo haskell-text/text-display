@@ -1,4 +1,4 @@
-# PG-Entity Book
+# text-display Book
 
 In order to build this book, you must install
 [mdbook](https://rust-lang.github.io/mdBook/guide/installation.html).
