@@ -13,6 +13,7 @@ import LiterateX.Renderer (Options (..))
 import qualified LiterateX.Renderer as Renderer
 import qualified LiterateX.Types.SourceFormat as SourceFormat
 import qualified System.Directory as Directory
+import LiterateX.Types.TargetFormat (TargetFormat(..))
 
 data FileFormat
   = Haskell
@@ -51,6 +52,7 @@ literatexOptions =
   Renderer.defaultOptions
     { codeLanguage = Just "haskell"
     , numberCodeLines = False
+    , targetFormat = MdBook
     }
 
 toMarkdownFile :: FilePath -> FilePath
