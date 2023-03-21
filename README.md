@@ -24,7 +24,18 @@
 > *A Typeclass for user-facing output*
 
 
-The `text-display` library offers a way for developers to print a textual representation of datatypes that does not
+The `text-display` library offers the `Display` for developers to print a textual representation of datatypes that does not
 have to abide by the rules of the [Show typeclass][Show].
 
+## Documentation
+
+* [Tutorial for new users][tutorial]
+* [API Reference][reference]
+* [Design of the library][design]
+* [Comparison with other libraries][comparison]
+
 [Show]: https://hackage.haskell.org/package/base/docs/Text-Show.html#v:Show
+[tutorial]: https://hackage.haskell.org/package/text-display/src/docs/book/Tutorial.html
+[design]: https://hackage.haskell.org/package/text-display/src/docs/book/Design.html
+[reference]: https://hackage.haskell.org/package/text-display/docs/Data-Text-Display.html
+[comparison]: https://hackage.haskell.org/package/text-display/src/docs/book/Comparison.html
