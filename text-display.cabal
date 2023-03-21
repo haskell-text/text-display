@@ -1,12 +1,12 @@
 cabal-version:      3.0
 name:               text-display
-version:            0.0.3.0
+version:            0.0.4.0
 category:           Text
 synopsis:           A typeclass for user-facing output
 description:
   The 'Display' typeclass provides a solution for user-facing output that does not have to abide by the rules of the Show typeclass.
 
-homepage:           https://github.com/haskell-text/text-display#readme
+homepage:           https://hackage.haskell.org/package/text-display/src/docs/book/Introduction.html
 bug-reports:        https://github.com/haskell-text/text-display/issues
 author:             Hécate Moonlight
 maintainer:         Hécate Moonlight
