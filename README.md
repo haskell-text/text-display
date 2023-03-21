@@ -24,7 +24,7 @@
 > *A Typeclass for user-facing output*
 
 
-The `text-display` library offers the `Display` for developers to print a textual representation of datatypes that does not
+The `text-display` library offers the `Display` typeclass for developers to print a textual representation of datatypes that does not
 have to abide by the rules of the [Show typeclass][Show].
 
 ## Documentation
