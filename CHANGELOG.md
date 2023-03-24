@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [Unreleased]
+## [v0.0.4.0] - 21/03/2023
 
 * Fix `displayList` by making it lazier (https://github.com/haskell-text/text-display/pull/27)
 * Add Display instance for `Void` (https://github.com/haskell-text/text-display/pull/28)
