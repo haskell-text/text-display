@@ -147,7 +147,7 @@ class Display a where
 -- "True"
 --
 -- @since 0.0.1.0
-display :: Display a => a -> Text
+display :: (Display a) => a -> Text
 display a = TL.toStrict $ TB.toLazyText $ displayBuilder a
 
 -- | 🚫 You should not try to display functions!
@@ -223,7 +223,7 @@ newtype OpaqueInstance (str :: Symbol) (a :: Type) = Opaque a
 -- useful for redacting sensitive content like tokens or passwords.
 --
 -- @since 0.0.1.0
-instance KnownSymbol str => Display (OpaqueInstance str a) where
+instance (KnownSymbol str) => Display (OpaqueInstance str a) where
   displayBuilder _ = TB.fromString $ symbolVal (Proxy @str)
 
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to
@@ -249,7 +249,7 @@ newtype ShowInstance (a :: Type)
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to derive 'Display' from it.
 --
 -- @since 0.0.1.0
-instance Show e => Display (ShowInstance e) where
+instance (Show e) => Display (ShowInstance e) where
   displayBuilder s = TB.fromString $ show s
 
 -- @since 0.0.1.0
@@ -259,7 +259,7 @@ newtype DisplayDecimal e
     (Integral, Real, Enum, Ord, Num, Eq)
 
 -- @since 0.0.1.0
-instance Integral e => Display (DisplayDecimal e) where
+instance (Integral e) => Display (DisplayDecimal e) where
   displayBuilder = TB.decimal
 
 -- @since 0.0.1.0
@@ -269,7 +269,7 @@ newtype DisplayRealFloat e
     (RealFloat, RealFrac, Real, Ord, Eq, Num, Fractional, Floating)
 
 -- @since 0.0.1.0
-instance RealFloat e => Display (DisplayRealFloat e) where
+instance (RealFloat e) => Display (DisplayRealFloat e) where
   displayBuilder = TB.realFloat
 
 -- | @since 0.0.1.0
@@ -309,7 +309,7 @@ instance Display Text where
   displayBuilder = TB.fromText
 
 -- | @since 0.0.1.0
-instance Display a => Display [a] where
+instance (Display a) => Display [a] where
   {-# SPECIALIZE instance Display [String] #-}
   {-# SPECIALIZE instance Display [Char] #-}
   {-# SPECIALIZE instance Display [Int] #-}
@@ -321,11 +321,11 @@ instance Display a => Display [a] where
   displayBuilder = displayList
 
 -- | @since 0.0.1.0
-instance Display a => Display (NonEmpty a) where
+instance (Display a) => Display (NonEmpty a) where
   displayBuilder (a :| as) = displayBuilder a <> TB.fromString " :| " <> displayBuilder as
 
 -- | @since 0.0.1.0
-instance Display a => Display (Maybe a) where
+instance (Display a) => Display (Maybe a) where
   -- In this instance, we define 'displayPrec' rather than 'displayBuilder' as we need to decide
   -- whether or not to surround ourselves in parentheses based on the surrounding context.
   -- If the precedence parameter is higher than 10 (the precedence of constructor application)
