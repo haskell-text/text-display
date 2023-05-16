@@ -6,6 +6,10 @@ in with pkgs;
       cabal-install
       hlint
       haskellPackages.apply-refact
+      haskellPackages.fourmolu_0_12_0_0
+      haskellPackages.cabal-fmt
+      haskell-language-server
+      ghc
 
       # DB Deps
       gmp

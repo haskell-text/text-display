@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [v0.0.5.0] - 16/05/2023
+
+* Add Generic machinery (GDisplay1) and RecordInstance newtype for deriving via (https://github.com/haskell-text/text-display/pull/52)
+
 ## [v0.0.4.0] - 21/03/2023
 
 * Fix `displayList` by making it lazier (https://github.com/haskell-text/text-display/pull/27)
