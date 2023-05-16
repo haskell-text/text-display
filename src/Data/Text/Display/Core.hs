@@ -210,7 +210,7 @@ newtype OpaqueInstance (str :: Symbol) (a :: Type) = Opaque a
 -- useful for redacting sensitive content like tokens or passwords.
 --
 -- @since 0.0.1.0
-instance KnownSymbol str => Display (OpaqueInstance str a) where
+instance (KnownSymbol str) => Display (OpaqueInstance str a) where
   displayBuilder _ = TB.fromString $ symbolVal (Proxy @str)
 
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to
@@ -236,7 +236,7 @@ newtype ShowInstance (a :: Type)
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to derive 'Display' from it.
 --
 -- @since 0.0.1.0
-instance Show e => Display (ShowInstance e) where
+instance (Show e) => Display (ShowInstance e) where
   displayBuilder s = TB.fromString $ show s
 
 -- @since 0.0.1.0
@@ -246,7 +246,7 @@ newtype DisplayDecimal e
     (Integral, Real, Enum, Ord, Num, Eq)
 
 -- @since 0.0.1.0
-instance Integral e => Display (DisplayDecimal e) where
+instance (Integral e) => Display (DisplayDecimal e) where
   displayBuilder = TB.decimal
 
 -- @since 0.0.1.0
@@ -256,7 +256,7 @@ newtype DisplayRealFloat e
     (RealFloat, RealFrac, Real, Ord, Eq, Num, Fractional, Floating)
 
 -- @since 0.0.1.0
-instance RealFloat e => Display (DisplayRealFloat e) where
+instance (RealFloat e) => Display (DisplayRealFloat e) where
   displayBuilder = TB.realFloat
 
 -- | @since 0.0.1.0
