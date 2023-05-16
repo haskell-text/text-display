@@ -44,8 +44,8 @@ instance GDisplay1 U1 where
 
 -- | This is the most important instance, it can be considered as the "base case". It
 -- requires a non-generic `Display` instance. All this generic machinery can be conceptualized
--- as distributing these `displayBuilder` across a product type.
-instance (Display c) => GDisplay1 (K1 i c) where
+-- as distributing these `displayBuilder` calls across a product type.
+instance Display c => GDisplay1 (K1 i c) where
   gdisplayBuilder1 (K1 a) = displayBuilder a
 
 instance (Constructor c, GDisplay1 f) => GDisplay1 (M1 C c f) where
@@ -67,7 +67,7 @@ instance (Selector s, GDisplay1 f) => GDisplay1 (M1 S s f) where
       then gdisplayBuilder1 a
       else TB.fromString (selName s) <> " = " <> gdisplayBuilder1 a
 
-instance (GDisplay1 f) => GDisplay1 (M1 D s f) where
+instance GDisplay1 f => GDisplay1 (M1 D s f) where
   gdisplayBuilder1 (M1 a) = gdisplayBuilder1 a
 
 instance (GDisplay1 a, GDisplay1 b) => GDisplay1 (a :*: b) where
@@ -117,11 +117,43 @@ instance (Generic a, GDisplay1 (Rep a)) => Display (GenericProduct a) where
 -- >   }
 --
 -- @since 0.0.5.0
-newtype RecordInstance a = RecordInstance {unDisplayProduct :: GenericProduct a}
+newtype RecordInstance a = RecordInstance {unDisplayProduct :: a}
   deriving (Generic)
+
+instance Generic a => Generic (GenericProduct a) where
+  type Rep (GenericProduct a) = Rep a
+  to = GenericProduct . to
+  from (GenericProduct x) = from x
 
 -- | This wrapper allows you to distribute `Display` instances across record fields
 --
 -- @since 0.0.5.0
-instance (Generic a, GDisplay1 (Rep a)) => Display (RecordInstance a) where
+instance (AssertNoSum Display a, Generic a, GDisplay1 (Rep a)) => Display (RecordInstance a) where
   displayBuilder (RecordInstance a) = gdisplayBuilderDefault a
+
+-- | This type family is lifted from generic-data. It serves to prevent the user from
+-- deriving a `RecordInstance` for sum types
+--
+-- @since 0.0.5.0
+type family HasSum f where
+  HasSum V1 = 'False
+  HasSum U1 = 'False
+  HasSum (K1 i c) = 'False
+  HasSum (M1 i c f) = HasSum f
+  HasSum (f :*: g) = HasSum f || HasSum g
+  HasSum (f :+: g) = 'True
+
+class Assert (pred :: Bool) (msg :: ErrorMessage)
+instance Assert 'True msg
+instance TypeError msg ~ '() => Assert 'False msg
+
+type AssertNoSum (constraint :: Type -> Constraint) a =
+  Assert
+    (Not (HasSum (Rep a)))
+    ( 'Text "🚫 Cannot derive "
+        ':<>: 'ShowType constraint
+        ':<>: 'Text " instance for "
+        ':<>: 'ShowType a
+        ':<>: 'Text " due to sum type"
+        ':$$: 'Text "💡 Sum types should use a manual instance or derive one via ShowInstance."
+    )
