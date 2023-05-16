@@ -23,7 +23,6 @@ import Data.Text.Display.Core
 import Data.Text.Lazy.Builder (Builder)
 import qualified Data.Text.Lazy.Builder as TB
 import GHC.Generics
-import Generic.Data
 
 -- | Generic typeclass machinery for inducting on the structure
 -- of the type, such that we can thread `Display` instances through
