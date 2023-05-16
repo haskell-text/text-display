@@ -8,6 +8,8 @@ in with pkgs;
       haskellPackages.apply-refact
       haskellPackages.fourmolu
       haskellPackages.cabal-fmt
+      haskell-language-server
+      ghc
 
       # DB Deps
       gmp

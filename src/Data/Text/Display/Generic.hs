@@ -45,7 +45,7 @@ instance GDisplay1 U1 where
 -- | This is the most important instance, it can be considered as the "base case". It
 -- requires a non-generic `Display` instance. All this generic machinery can be conceptualized
 -- as distributing these `displayBuilder` across a product type.
-instance Display c => GDisplay1 (K1 i c) where
+instance (Display c) => GDisplay1 (K1 i c) where
   gdisplayBuilder1 (K1 a) = displayBuilder a
 
 instance (Constructor c, GDisplay1 f) => GDisplay1 (M1 C c f) where
@@ -67,7 +67,7 @@ instance (Selector s, GDisplay1 f) => GDisplay1 (M1 S s f) where
       then gdisplayBuilder1 a
       else TB.fromString (selName s) <> " = " <> gdisplayBuilder1 a
 
-instance GDisplay1 f => GDisplay1 (M1 D s f) where
+instance (GDisplay1 f) => GDisplay1 (M1 D s f) where
   gdisplayBuilder1 (M1 a) = gdisplayBuilder1 a
 
 instance (GDisplay1 a, GDisplay1 b) => GDisplay1 (a :*: b) where

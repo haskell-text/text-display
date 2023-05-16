@@ -64,7 +64,7 @@ class Display a where
   -- >   displayBuilder c = TB.fromText $ T.singleton c
   -- >   displayList cs = TB.fromText $ T.pack cs
   -- >
-  -- > instance Display a => Display [a] where
+  -- > instance (Display a) => Display [a] where
   -- >   -- In this instance, 'displayBuilder' is defined in terms of 'displayList', which for most types
   -- >   -- is defined as the default written in the class declaration.
   -- >   -- But when a ~ Char, there is an explicit implementation that is selected instead, which
@@ -102,7 +102,7 @@ class Display a where
   --
   -- === Examples
   --
-  -- > instance Display a => Display (Maybe a) where
+  -- > instance (Display a) => Display (Maybe a) where
   -- >   -- In this instance, we define 'displayPrec' rather than 'displayBuilder' as we need to decide
   -- >   -- whether or not to surround ourselves in parentheses based on the surrounding context.
   -- >   -- If the precedence parameter is higher than 10 (the precedence of constructor application)
@@ -296,7 +296,7 @@ instance Display Text where
   displayBuilder = TB.fromText
 
 -- | @since 0.0.1.0
-instance Display a => Display [a] where
+instance (Display a) => Display [a] where
   {-# SPECIALIZE instance Display [String] #-}
   {-# SPECIALIZE instance Display [Char] #-}
   {-# SPECIALIZE instance Display [Int] #-}
@@ -308,11 +308,11 @@ instance Display a => Display [a] where
   displayBuilder = displayList
 
 -- | @since 0.0.1.0
-instance Display a => Display (NonEmpty a) where
+instance (Display a) => Display (NonEmpty a) where
   displayBuilder (a :| as) = displayBuilder a <> TB.fromString " :| " <> displayBuilder as
 
 -- | @since 0.0.1.0
-instance Display a => Display (Maybe a) where
+instance (Display a) => Display (Maybe a) where
   -- In this instance, we define 'displayPrec' rather than 'displayBuilder' as we need to decide
   -- whether or not to surround ourselves in parentheses based on the surrounding context.
   -- If the precedence parameter is higher than 10 (the precedence of constructor application)
