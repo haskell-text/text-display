@@ -7,7 +7,7 @@ description:
   The 'Display' typeclass provides a solution for user-facing output that does not have to abide by the rules of the Show typeclass.
 
 homepage:
-  https://hackage.haskell.org/package/text-display-0.0.4.0/docs/doc/book/Introduction.html
+  https://hackage.haskell.org/package/text-display-0.0.5.0/docs/doc/book/Introduction.html
 
 bug-reports:        https://github.com/haskell-text/text-display/issues
 author:             Hécate Moonlight
