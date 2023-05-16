@@ -63,9 +63,10 @@ library
   hs-source-dirs:  src
   exposed-modules: Data.Text.Display
   build-depends:
-    , base        >=4.12 && <5.0
-    , bytestring  >=0.10 && <0.12
-    , text        >=2.0
+    , base         >=4.12 && <5.0
+    , bytestring   >=0.10 && <0.12
+    , text         >=2.0
+    , generic-data >=1.0
 
 executable book
   import:         common-extensions
