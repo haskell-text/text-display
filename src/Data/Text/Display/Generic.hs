@@ -1,13 +1,13 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE EmptyCase #-}
-{-# LANGUAGE DerivingVia #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingVia #-}
+{-# LANGUAGE EmptyCase #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- |
 --  Module      : Data.Text.Display.Generic
@@ -19,11 +19,11 @@
 --  Generic machinery for automatically deriving display instances for record types
 module Data.Text.Display.Generic where
 
-import GHC.Generics
-import qualified Data.Text.Lazy.Builder as TB
-import Data.Text.Lazy.Builder (Builder)
-import Generic.Data
 import Data.Text.Display.Core
+import Data.Text.Lazy.Builder (Builder)
+import qualified Data.Text.Lazy.Builder as TB
+import GHC.Generics
+import Generic.Data
 
 -- | Generic typeclass machinery for inducting on the structure
 -- of the type, such that we can thread `Display` instances through
@@ -54,17 +54,18 @@ instance (Constructor c, GDisplay1 f) => GDisplay1 (M1 C c f) where
     | conIsTuple c = TB.fromString (conName c) <> " ( " <> gdisplayBuilder1 a <> " )"
     | otherwise = TB.fromString (conName c) <> " " <> gdisplayBuilder1 a
     where
-        conIsTuple :: C1 c f p -> Bool
-        conIsTuple y
-          = tupleName (conName y)
-          where
-              tupleName ('(' : ',' : _) = True
-              tupleName _ = False
+      conIsTuple :: C1 c f p -> Bool
+      conIsTuple y =
+        tupleName (conName y)
+        where
+          tupleName ('(' : ',' : _) = True
+          tupleName _ = False
 
 instance (Selector s, GDisplay1 f) => GDisplay1 (M1 S s f) where
-  gdisplayBuilder1 s@(M1 a) = if selName s == ""
-    then gdisplayBuilder1 a
-    else TB.fromString (selName s) <> " = " <> gdisplayBuilder1 a
+  gdisplayBuilder1 s@(M1 a) =
+    if selName s == ""
+      then gdisplayBuilder1 a
+      else TB.fromString (selName s) <> " = " <> gdisplayBuilder1 a
 
 instance GDisplay1 f => GDisplay1 (M1 D s f) where
   gdisplayBuilder1 (M1 a) = gdisplayBuilder1 a
@@ -116,7 +117,7 @@ instance (Generic a, GDisplay1 (Rep a)) => Display (GenericProduct a) where
 -- >   }
 --
 -- @since 0.0.5.0
-newtype RecordInstance a = RecordInstance { unDisplayProduct :: GenericProduct a }
+newtype RecordInstance a = RecordInstance {unDisplayProduct :: GenericProduct a}
   deriving (Generic)
 
 -- | This wrapper allows you to distribute `Display` instances across record fields

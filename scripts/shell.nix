@@ -6,6 +6,8 @@ in with pkgs;
       cabal-install
       hlint
       haskellPackages.apply-refact
+      haskellPackages.fourmolu
+      haskellPackages.cabal-fmt
 
       # DB Deps
       gmp
