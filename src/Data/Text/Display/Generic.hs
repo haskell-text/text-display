@@ -128,10 +128,10 @@ instance Generic a => Generic (RecordInstance a) where
 -- or derive one via `ShowInstance`.
 --
 -- @since 0.0.5.0
-instance (AssertNoSum Display a, Generic a, GDisplay1 (Rep a)) => Display (RecordInstance a) where
+instance (AssertNoSumRecordInstance Display a, Generic a, GDisplay1 (Rep a)) => Display (RecordInstance a) where
   displayBuilder = gdisplayBuilderDefault
 
--- | This type family is lifted from generic-data. It serves to prevent the user from
+-- | This type family is lifted from generic-data. We use it to prevent the user from
 -- deriving a `RecordInstance` for sum types
 --
 -- @since 0.0.5.0
@@ -147,13 +147,24 @@ class Assert (pred :: Bool) (msg :: ErrorMessage)
 instance Assert 'True msg
 instance TypeError msg ~ '() => Assert 'False msg
 
-type AssertNoSum (constraint :: Type -> Constraint) a =
+-- | Constraint to prevent misuse of `RecordInstance` deriving via mechanism.
+--
+-- === Example
+--
+-- > data MySum = A | B | C deriving stock (Generic) deriving (Display) via (RecordInstance MySum)
+--
+-- >    • 🚫 Cannot derive Display instance for MySum via RecordInstance due to sum type
+-- >      💡 Sum types should use a manual instance or derive one via ShowInstance.
+-- >    • When deriving the instance for (Display MySum)
+--
+-- @since 0.0.5.0
+type AssertNoSumRecordInstance (constraint :: Type -> Constraint) a =
   Assert
     (Not (HasSum (Rep a)))
     ( 'Text "🚫 Cannot derive "
         ':<>: 'ShowType constraint
         ':<>: 'Text " instance for "
         ':<>: 'ShowType a
-        ':<>: 'Text " due to sum type"
+        ':<>: 'Text " via RecordInstance due to sum type"
         ':$$: 'Text "💡 Sum types should use a manual instance or derive one via ShowInstance."
     )
