@@ -1,17 +1,17 @@
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- |
@@ -24,13 +24,13 @@
 --  Generic machinery for automatically deriving display instances for record types
 module Data.Text.Display.Generic where
 
+import Data.Kind
 import Data.Text.Display.Core
 import Data.Text.Lazy.Builder (Builder)
-import Data.Kind
-import Data.Type.Bool
-import GHC.TypeLits
 import qualified Data.Text.Lazy.Builder as TB
+import Data.Type.Bool
 import GHC.Generics
+import GHC.TypeLits
 
 -- | Generic typeclass machinery for inducting on the structure
 -- of the type, such that we can thread `Display` instances through
@@ -86,7 +86,6 @@ instance (GDisplay1 a, GDisplay1 b) => GDisplay1 (a :+: b) where
 
 gdisplayBuilderDefault :: (Generic a, GDisplay1 (Rep a)) => a -> Builder
 gdisplayBuilderDefault = gdisplayBuilder1 . from
-
 
 -- | This wrapper allows you to create an `Display` instance for a record,
 -- so long as all the record fields have a `Display` instance as well.
