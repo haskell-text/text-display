@@ -61,7 +61,10 @@ library
   import:          common-extensions
   import:          common-ghc-options
   hs-source-dirs:  src
-  exposed-modules: Data.Text.Display
+  exposed-modules:
+    Data.Text.Display
+    Data.Text.Display.Core
+    Data.Text.Display.Generic
   build-depends:
     , base        >=4.12 && <5.0
     , bytestring  >=0.10 && <0.12
