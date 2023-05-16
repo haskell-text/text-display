@@ -21,9 +21,6 @@ module Data.Text.Display
 
     -- * Design choices
     -- $designChoices
-
-    -- * Re-exports for instance resolution machinery
-  , GenericProduct (..)
   )
 where
 

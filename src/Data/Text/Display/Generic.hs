@@ -7,6 +7,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- |
@@ -21,6 +26,9 @@ module Data.Text.Display.Generic where
 
 import Data.Text.Display.Core
 import Data.Text.Lazy.Builder (Builder)
+import Data.Kind
+import Data.Type.Bool
+import GHC.TypeLits
 import qualified Data.Text.Lazy.Builder as TB
 import GHC.Generics
 
@@ -79,13 +87,6 @@ instance (GDisplay1 a, GDisplay1 b) => GDisplay1 (a :+: b) where
 gdisplayBuilderDefault :: (Generic a, GDisplay1 (Rep a)) => a -> Builder
 gdisplayBuilderDefault = gdisplayBuilder1 . from
 
--- | We leverage the `Generic.Data.GenericProduct` type to prevent consumers
--- from deriving instances for sum types. Sum types should use a manual instance
--- or derive one via `ShowInstance`.
---
--- @since 0.0.5.0
-instance (Generic a, GDisplay1 (Rep a)) => Display (GenericProduct a) where
-  displayBuilder = gdisplayBuilderDefault
 
 -- | This wrapper allows you to create an `Display` instance for a record,
 -- so long as all the record fields have a `Display` instance as well.
@@ -117,18 +118,19 @@ instance (Generic a, GDisplay1 (Rep a)) => Display (GenericProduct a) where
 --
 -- @since 0.0.5.0
 newtype RecordInstance a = RecordInstance {unDisplayProduct :: a}
-  deriving (Generic)
 
-instance Generic a => Generic (GenericProduct a) where
-  type Rep (GenericProduct a) = Rep a
-  to = GenericProduct . to
-  from (GenericProduct x) = from x
+instance Generic a => Generic (RecordInstance a) where
+  type Rep (RecordInstance a) = Rep a
+  to = RecordInstance . to
+  from (RecordInstance x) = from x
 
--- | This wrapper allows you to distribute `Display` instances across record fields
+-- | We leverage the `AssertNoSum` type family to prevent consumers
+-- from deriving instances for sum types. Sum types should use a manual instance
+-- or derive one via `ShowInstance`.
 --
 -- @since 0.0.5.0
 instance (AssertNoSum Display a, Generic a, GDisplay1 (Rep a)) => Display (RecordInstance a) where
-  displayBuilder (RecordInstance a) = gdisplayBuilderDefault a
+  displayBuilder = gdisplayBuilderDefault
 
 -- | This type family is lifted from generic-data. It serves to prevent the user from
 -- deriving a `RecordInstance` for sum types
