@@ -16,9 +16,9 @@
 
 -- |
 --  Module      : Data.Text.Display.Generic
---  Copyright   : © Hécate Moonlight, 2021
+--  Copyright   : © Jonathan Lorimer, 2023
 --  License     : MIT
---  Maintainer  : hecate@glitchbra.in
+--  Maintainer  : jonathanlorimer@pm.me
 --  Stability   : stable
 --
 --  Generic machinery for automatically deriving display instances for record types
