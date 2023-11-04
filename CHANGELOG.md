@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [v0.0.5.1] - 04/11/2023
+
+*  Allow bytestring 0.12 (for GHC 9.8) [#58](https://github.com/haskell-text/text-display/pull/58)
+
 ## [v0.0.5.0] - 16/05/2023
 
 * Add Generic machinery (GDisplay1) and RecordInstance newtype for deriving via (https://github.com/haskell-text/text-display/pull/52)
