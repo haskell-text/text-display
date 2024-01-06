@@ -7,23 +7,25 @@ on:
     branches: ["main"]
 
 jobs:
-  generateMatrix:
+  generate-matrix:
     name: "Generate matrix from cabal"
-    runs-on: ubuntu-latest
-    outputs:
+    outputs: 
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
     steps:
       - name: Extract the tested GHC versions
+        id: set-matrix
         uses: kleidukos/get-tested@v0.1.6.0
         with:
-          cabal-file: ./text-display.cabal
+          cabal-file: text-display.cabal
           ubuntu: true
+          version: 0.1.6.0
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
-    needs: generateMatrix
+    needs: generate-matrix
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix: ${{ fromJSON(needs.generateMatrix.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: Checkout base repo
         uses: actions/checkout@v4
