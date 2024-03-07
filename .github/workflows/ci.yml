@@ -18,7 +18,8 @@ jobs:
         uses: kleidukos/get-tested@v0.1.7.0
         with:
           cabal-file: text-display.cabal
-          ubuntu: true
+          ubuntu-version: "latest"
+          macos: true
           version: 0.1.7.0
   tests:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
