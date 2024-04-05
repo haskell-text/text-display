@@ -2,7 +2,7 @@ packages: ./
 
 tests: True
 
-flags: -book
+flags: +book
 
 documentation: True
 
