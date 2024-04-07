@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [v0.0.5.2] - 07/04/2024
+
+* Allow GHC 9.6.4 and 9.8.2
+
 ## [v0.0.5.1] - 04/11/2023
 
 *  Allow bytestring 0.12 (for GHC 9.8) [#58](https://github.com/haskell-text/text-display/pull/58)
