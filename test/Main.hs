@@ -13,13 +13,12 @@ import qualified Data.List.NonEmpty as NE
 import Data.Maybe
 import qualified Data.Text as T
 import Data.Text.Arbitrary
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Builder as TB
 import System.Timeout
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 
+import qualified Data.Text.Builder.Linear as Builder
 import Data.Text.Display
 
 main :: IO ()
@@ -81,7 +80,7 @@ spec =
             T.unpack (display list) @?= show list
         , testCase "List instance is streamed lazily" $ do
             let list = [1 ..] :: [Int]
-            TL.take 20 (TB.toLazyText $ displayBuilder list) `shouldEvaluateWithin` 100000
+            T.take 20 (Builder.runBuilder $ displayBuilder list) `shouldEvaluateWithin` 100000
         , testCase "NonEmpty instance is equivalent to Show" $ do
             let ne = NE.fromList [1 .. 5] :: NonEmpty Int
             T.unpack (display ne) @?= show ne
@@ -113,12 +112,12 @@ spec =
     , testGroup
         "`displayParen` tests"
         [ testCase "Surrounds with parens when True" $
-            displayParen True "foo" @?= "(foo)"
+            Builder.runBuilder (displayParen True "foo") @?= "(foo)"
         , testCase "Doesn't surround with parens when False" $
-            displayParen False "foo" @?= "foo"
+            Builder.runBuilder (displayParen False "foo") @?= "foo"
         , testCase "Surrounds deeply-nested Maybes with a prec of 10" $
-            displayPrec 10 (Just (Just (Just (3 :: Int)))) @?= "Just (Just (Just 3))"
+            Builder.runBuilder (displayPrec 10 (Just (Just (Just (3 :: Int))))) @?= "Just (Just (Just 3))"
         , testCase "Surrounds deeply-nested Maybes with a prec of 11" $
-            displayPrec 11 (Just (Just (Just (3 :: Int)))) @?= "(Just (Just (Just 3)))"
+            Builder.runBuilder (displayPrec 11 (Just (Just (Just (3 :: Int))))) @?= "(Just (Just (Just 3)))"
         ]
     ]
