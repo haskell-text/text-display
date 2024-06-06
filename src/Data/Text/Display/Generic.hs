@@ -23,9 +23,10 @@
 module Data.Text.Display.Generic where
 
 import Data.Kind
+import qualified Data.List as List
+import Data.Text.Builder.Linear
+import qualified Data.Text.Builder.Linear as Builder
 import Data.Text.Display.Core
-import Data.Text.Lazy.Builder (Builder)
-import qualified Data.Text.Lazy.Builder as TB
 import Data.Type.Bool
 import GHC.Generics
 import GHC.TypeLits
@@ -55,9 +56,9 @@ instance Display c => GDisplay1 (K1 i c) where
 
 instance (Constructor c, GDisplay1 f) => GDisplay1 (M1 C c f) where
   gdisplayBuilder1 c@(M1 a)
-    | conIsRecord c = TB.fromString (conName c) <> "\n  { " <> gdisplayBuilder1 a <> "\n  }"
-    | conIsTuple c = TB.fromString (conName c) <> " ( " <> gdisplayBuilder1 a <> " )"
-    | otherwise = TB.fromString (conName c) <> " " <> gdisplayBuilder1 a
+    | conIsRecord c = List.foldl' (\acc char -> acc <> Builder.fromChar char) "" (conName c) <> "\n  { " <> gdisplayBuilder1 a <> "\n  }"
+    | conIsTuple c = List.foldl' (\acc char -> acc <> Builder.fromChar char) "" (conName c) <> " ( " <> gdisplayBuilder1 a <> " )"
+    | otherwise = List.foldl' (\acc char -> acc <> Builder.fromChar char) "" (conName c) <> " " <> gdisplayBuilder1 a
     where
       conIsTuple :: C1 c f p -> Bool
       conIsTuple y =
@@ -70,7 +71,7 @@ instance (Selector s, GDisplay1 f) => GDisplay1 (M1 S s f) where
   gdisplayBuilder1 s@(M1 a) =
     if selName s == ""
       then gdisplayBuilder1 a
-      else TB.fromString (selName s) <> " = " <> gdisplayBuilder1 a
+      else List.foldl' (\acc char -> acc <> Builder.fromChar char) "" (selName s) <> " = " <> gdisplayBuilder1 a
 
 instance GDisplay1 f => GDisplay1 (M1 D s f) where
   gdisplayBuilder1 (M1 a) = gdisplayBuilder1 a
