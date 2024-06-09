@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE LinearTypes #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -23,16 +24,18 @@
 module Data.Text.Display.Core where
 
 import Control.Exception hiding (TypeError)
-import Data.ByteString
-import qualified Data.ByteString.Lazy as BL
+import Data.ByteString (StrictByteString)
+import Data.ByteString.Lazy (LazyByteString)
 import Data.Int
 import Data.Kind
+import qualified Data.List as List
 import Data.List.NonEmpty
 import Data.Proxy
 import Data.Text (Text)
-import qualified Data.Text as T
+import qualified Data.Text as Text
+import Data.Text.Builder.Linear (Builder)
+import qualified Data.Text.Builder.Linear as Builder
 import qualified Data.Text.Lazy as TL
-import Data.Text.Lazy.Builder (Builder)
 import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.Text.Lazy.Builder.Int as TB
 import qualified Data.Text.Lazy.Builder.RealFloat as TB
@@ -61,8 +64,8 @@ class Display a where
   -- > import qualified Data.Text.Lazy.Builder as TB
   -- >
   -- > instance Display Char where
-  -- >   displayBuilder c = TB.fromText $ T.singleton c
-  -- >   displayList cs = TB.fromText $ T.pack cs
+  -- >   displayBuilder c = Builder.fromText $ Text.pack $ Text.singleton c
+  -- >   displayList cs = Builder.fromText $ Text.pack $ Text.pack cs
   -- >
   -- > instance (Display a) => Display [a] where
   -- >   -- In this instance, 'displayBuilder' is defined in terms of 'displayList', which for most types
@@ -135,7 +138,7 @@ class Display a where
 --
 -- @since 0.0.1.0
 display :: Display a => a -> Text
-display a = TL.toStrict $ TB.toLazyText $ displayBuilder a
+display a = Builder.runBuilder $ displayBuilder a
 
 -- | 🚫 You should not try to display functions!
 --
@@ -163,7 +166,7 @@ type family CannotDisplayBareFunctions :: Constraint where
 -- Use 'Data.Text.Encoding.decodeUtf8'' or 'Data.Text.Encoding.decodeUtf8With' to convert from UTF-8
 --
 -- @since 0.0.1.0
-instance CannotDisplayByteStrings => Display ByteString where
+instance CannotDisplayByteStrings => Display StrictByteString where
   displayBuilder = undefined
 
 -- | 🚫 You should not try to display lazy ByteStrings!
@@ -172,7 +175,7 @@ instance CannotDisplayByteStrings => Display ByteString where
 -- Use 'Data.Text.Encoding.decodeUtf8'' or 'Data.Text.Encoding.decodeUtf8With' to convert from UTF-8
 --
 -- @since 0.0.1.0
-instance CannotDisplayByteStrings => Display BL.ByteString where
+instance CannotDisplayByteStrings => Display LazyByteString where
   displayBuilder = undefined
 
 type family CannotDisplayByteStrings :: Constraint where
@@ -211,7 +214,7 @@ newtype OpaqueInstance (str :: Symbol) (a :: Type) = Opaque a
 --
 -- @since 0.0.1.0
 instance KnownSymbol str => Display (OpaqueInstance str a) where
-  displayBuilder _ = TB.fromString $ symbolVal (Proxy @str)
+  displayBuilder _ = Builder.fromText $ Text.pack $ symbolVal (Proxy @str)
 
 -- | This wrapper allows you to rely on a pre-existing 'Show' instance in order to
 -- derive 'Display' from it.
@@ -237,7 +240,7 @@ newtype ShowInstance (a :: Type)
 --
 -- @since 0.0.1.0
 instance Show e => Display (ShowInstance e) where
-  displayBuilder s = TB.fromString $ show s
+  displayBuilder s = List.foldl' (\acc char -> acc <> Builder.fromChar char) "" $ show s
 
 -- @since 0.0.1.0
 newtype DisplayDecimal e
@@ -247,7 +250,7 @@ newtype DisplayDecimal e
 
 -- @since 0.0.1.0
 instance Integral e => Display (DisplayDecimal e) where
-  displayBuilder = TB.decimal
+  displayBuilder = displayBuilder . TB.toLazyText . TB.decimal
 
 -- @since 0.0.1.0
 newtype DisplayRealFloat e
@@ -257,7 +260,7 @@ newtype DisplayRealFloat e
 
 -- @since 0.0.1.0
 instance RealFloat e => Display (DisplayRealFloat e) where
-  displayBuilder = TB.realFloat
+  displayBuilder = displayBuilder . TB.toLazyText . TB.realFloat
 
 -- | @since 0.0.1.0
 deriving via (ShowInstance ()) instance Display ()
@@ -280,20 +283,20 @@ deriving via (ShowInstance Bool) instance Display Bool
 instance Display Char where
   -- This instance's implementation is used in the haddocks of the typeclass.
   -- If you change it, reflect the change in the documentation.
-  displayBuilder c = TB.fromText $ T.singleton c
-  displayList cs = TB.fromText $ T.pack cs
+  displayBuilder c = Builder.fromChar c
+  displayList cs = Builder.fromText $ Text.pack cs
 
 -- | Lazy 'TL.Text'
 --
 -- @since 0.0.1.0
 instance Display TL.Text where
-  displayBuilder = TB.fromLazyText
+  displayBuilder = Builder.fromText . TL.toStrict
 
 -- | Strict 'Data.Text.Text'
 --
 -- @since 0.0.1.0
 instance Display Text where
-  displayBuilder = TB.fromText
+  displayBuilder = Builder.fromText
 
 -- | @since 0.0.1.0
 instance Display a => Display [a] where
@@ -309,7 +312,7 @@ instance Display a => Display [a] where
 
 -- | @since 0.0.1.0
 instance Display a => Display (NonEmpty a) where
-  displayBuilder (a :| as) = displayBuilder a <> TB.fromString " :| " <> displayBuilder as
+  displayBuilder (a :| as) = displayBuilder a <> Builder.fromText " :| " <> displayBuilder as
 
 -- | @since 0.0.1.0
 instance Display a => Display (Maybe a) where
