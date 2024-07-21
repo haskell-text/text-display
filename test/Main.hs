@@ -5,21 +5,16 @@
 
 module Main where
 
-import Control.DeepSeq
 import Control.Exception
-import Control.Monad
 import Data.List.NonEmpty
 import qualified Data.List.NonEmpty as NE
-import Data.Maybe
 import qualified Data.Text as T
 import Data.Text.Arbitrary
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Builder as TB
-import System.Timeout
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 
+import qualified Data.Text.Builder.Linear as Builder
 import Data.Text.Display
 
 main :: IO ()
@@ -51,14 +46,6 @@ data OpaqueType = OpaqueType Int
     (Display)
     via (OpaqueInstance "<opaque>" OpaqueType)
 
--- | @v \`shouldEvaluateWithin\` n@ sets the expectation that evaluating @v@
--- should take no longer than @n@ microseconds.
-shouldEvaluateWithin :: (HasCallStack, NFData a) => a -> Int -> Assertion
-shouldEvaluateWithin a n = do
-  res <- timeout n (evaluate $ force a)
-  when (isNothing res) $ do
-    assertFailure ("evaluation timed out in " <> show n <> " microseconds")
-
 spec :: TestTree
 spec =
   testGroup
@@ -79,9 +66,6 @@ spec =
         , testCase "Single-element List instance is equivalent to Show" $ do
             let list = [1] :: [Int]
             T.unpack (display list) @?= show list
-        , testCase "List instance is streamed lazily" $ do
-            let list = [1 ..] :: [Int]
-            TL.take 20 (TB.toLazyText $ displayBuilder list) `shouldEvaluateWithin` 100000
         , testCase "NonEmpty instance is equivalent to Show" $ do
             let ne = NE.fromList [1 .. 5] :: NonEmpty Int
             T.unpack (display ne) @?= show ne
@@ -113,12 +97,12 @@ spec =
     , testGroup
         "`displayParen` tests"
         [ testCase "Surrounds with parens when True" $
-            displayParen True "foo" @?= "(foo)"
+            Builder.runBuilder (displayParen True "foo") @?= "(foo)"
         , testCase "Doesn't surround with parens when False" $
-            displayParen False "foo" @?= "foo"
+            Builder.runBuilder (displayParen False "foo") @?= "foo"
         , testCase "Surrounds deeply-nested Maybes with a prec of 10" $
-            displayPrec 10 (Just (Just (Just (3 :: Int)))) @?= "Just (Just (Just 3))"
+            Builder.runBuilder (displayPrec 10 (Just (Just (Just (3 :: Int))))) @?= "Just (Just (Just 3))"
         , testCase "Surrounds deeply-nested Maybes with a prec of 11" $
-            displayPrec 11 (Just (Just (Just (3 :: Int)))) @?= "(Just (Just (Just 3)))"
+            Builder.runBuilder (displayPrec 11 (Just (Just (Just (3 :: Int))))) @?= "(Just (Just (Just 3)))"
         ]
     ]

@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               text-display
-version:            0.0.5.2
+version:            1.0.0.0
 category:           Text
 synopsis:           A typeclass for user-facing output
 description:
@@ -15,7 +15,11 @@ maintainer:         Hécate Moonlight
 license:            MIT
 build-type:         Simple
 tested-with:
-  GHC ==8.10.7 || ==9.0.2 || ==9.2.8 || ==9.4.8 || ==9.6.6 || ==9.8.2 || ==9.10.1
+  GHC ==9.2.8
+   || ==9.4.8
+   || ==9.6.6
+   || ==9.8.2
+   || ==9.10.1
 
 extra-source-files:
   LICENSE
@@ -65,10 +69,12 @@ library
     Data.Text.Display
     Data.Text.Display.Core
     Data.Text.Display.Generic
+
   build-depends:
-    , base        >=4.12 && <5.0
-    , bytestring  >=0.10 && <0.13
-    , text        >=2.0
+    , base                 >=4.12 && <5.0
+    , bytestring           >=0.10 && <0.13
+    , text                 >=2.0
+    , text-builder-linear
 
 executable book
   import:         common-extensions
@@ -95,10 +101,10 @@ test-suite text-display-test
   hs-source-dirs: test
   build-depends:
     , base
-    , deepseq
     , quickcheck-text
     , tasty
     , tasty-hunit
     , tasty-quickcheck
     , text
+    , text-builder-linear
     , text-display
