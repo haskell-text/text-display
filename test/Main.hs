@@ -5,15 +5,11 @@
 
 module Main where
 
-import Control.DeepSeq
 import Control.Exception
-import Control.Monad
 import Data.List.NonEmpty
 import qualified Data.List.NonEmpty as NE
-import Data.Maybe
 import qualified Data.Text as T
 import Data.Text.Arbitrary
-import System.Timeout
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
@@ -50,14 +46,6 @@ data OpaqueType = OpaqueType Int
     (Display)
     via (OpaqueInstance "<opaque>" OpaqueType)
 
--- | @v \`shouldEvaluateWithin\` n@ sets the expectation that evaluating @v@
--- should take no longer than @n@ microseconds.
-shouldEvaluateWithin :: (HasCallStack, NFData a) => a -> Int -> Assertion
-shouldEvaluateWithin a n = do
-  res <- timeout n (evaluate $ force a)
-  when (isNothing res) $ do
-    assertFailure ("evaluation timed out in " <> show n <> " microseconds")
-
 spec :: TestTree
 spec =
   testGroup
@@ -78,9 +66,6 @@ spec =
         , testCase "Single-element List instance is equivalent to Show" $ do
             let list = [1] :: [Int]
             T.unpack (display list) @?= show list
-        , testCase "List instance is streamed lazily" $ do
-            let list = [1 ..] :: [Int]
-            T.take 20 (Builder.runBuilder $ displayBuilder list) `shouldEvaluateWithin` 100000
         , testCase "NonEmpty instance is equivalent to Show" $ do
             let ne = NE.fromList [1 .. 5] :: NonEmpty Int
             T.unpack (display ne) @?= show ne

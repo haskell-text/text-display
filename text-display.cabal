@@ -101,7 +101,6 @@ test-suite text-display-test
   hs-source-dirs: test
   build-depends:
     , base
-    , deepseq
     , quickcheck-text
     , tasty
     , tasty-hunit
