@@ -1,6 +1,9 @@
 deps: ## Install the dependencies of the backend
 	@cabal build --only-dependencies
 
+docs: ## Run mdbook
+	@cd doc ; mdbook build
+
 build: ## Build the project in fast mode
 	@cabal build
 
