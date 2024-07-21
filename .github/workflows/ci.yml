@@ -51,10 +51,10 @@ jobs:
       - name: Test
         run: cabal test all
       - name: API Golden tests
-        uses: kleidukos/diff-package-api@v0.0.1.0
+        uses: kleidukos/diff-package-api@v0.0.1.3
         with:
           package-name: text-display
           expected-interface: test/package-api.txt
           ghc: ${{ matrix.ghc }}
-          version: 0.0.1.0
+          version: 0.1.0.0
 
