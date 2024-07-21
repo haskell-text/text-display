@@ -36,10 +36,8 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: 'latest'
-      - name: Configure
-        run: cabal configure --enable-tests
       - name: Freeze
-        run: cabal freeze
+        run: cabal freeze --project-file=cabal.ci.project
       - name: Cache
         uses: actions/cache@v4.0.2
         with:
@@ -52,9 +50,9 @@ jobs:
           mdbook-version: '0.4.40'
       - run: make docs
       - name: Build
-        run: cabal build --write-ghc-environment-files=always
+        run: cabal build --project-file=cabal.ci.project --write-ghc-environment-files=always
       - name: Test
-        run: cabal test all
+        run: cabal test --project-file=cabal.ci.project all
       - name: API Golden tests
         uses: kleidukos/diff-package-api@v0.0.1.3
         with:
@@ -62,4 +60,3 @@ jobs:
           expected-interface: test/package-api.txt
           ghc: ${{ matrix.ghc }}
           version: 0.1.0.0
-
