@@ -59,4 +59,4 @@ jobs:
           package-name: text-display
           expected-interface: test/package-api.txt
           ghc: ${{ matrix.ghc }}
-          version: 0.1.0.0
+          version: 0.1.0.1
