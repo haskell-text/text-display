@@ -32,15 +32,6 @@ extra-doc-files:
   ./doc/book/searchindex.json
   CHANGELOG.md
 
-flag book
-  description: Enable the generation of the book
-  default:     False
-  manual:      True
-
-source-repository head
-  type:     git
-  location: https://github.com/haskell-text/text-display
-
 tested-with:
   GHC ==8.10.7
    || ==9.0.2
@@ -49,6 +40,15 @@ tested-with:
    || ==9.6.4
    || ==9.8.2
    || ==9.10.1
+
+flag book
+  description: Enable the generation of the book
+  default:     False
+  manual:      True
+
+source-repository head
+  type:     git
+  location: https://github.com/haskell-text/text-display
 
 common common-extensions
   default-language: Haskell2010
