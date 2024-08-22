@@ -6,7 +6,5 @@ flags: -book
 
 documentation: True
 
-test-show-details: direct
-
 package *
   ghc-options: -haddock

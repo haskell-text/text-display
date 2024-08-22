@@ -1,9 +1,5 @@
-packages: ./
+import: ./cabal.project
 
 tests: True
-
 flags: +book
-
 documentation: True
-
-test-show-details: direct

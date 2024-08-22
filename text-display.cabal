@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               text-display
-version:            0.0.5.2
+version:            1.0.0.0
 category:           Text
 synopsis:           A typeclass for user-facing output
 description:
@@ -73,9 +73,10 @@ library
     Data.Text.Display.Generic
 
   build-depends:
-    , base        >=4.12 && <5.0
-    , bytestring  >=0.10 && <0.13
-    , text        >=2.0
+    , base                 >=4.12  && <5.0
+    , bytestring           >=0.10  && <0.13
+    , text                 >=2.0.2 && <2.1
+    , text-builder-linear  >=0.1.3 && <0.2
 
 executable book
   import:         common-extensions
@@ -102,10 +103,10 @@ test-suite text-display-test
   hs-source-dirs: test
   build-depends:
     , base
-    , deepseq
     , quickcheck-text
     , tasty
     , tasty-hunit
     , tasty-quickcheck
     , text
+    , text-builder-linear
     , text-display

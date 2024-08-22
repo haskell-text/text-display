@@ -1,0 +1,122 @@
+
+module Data.Text.Display where
+  type Display :: * -> Constraint
+  class Display a where
+    displayBuilder :: a -> Data.Text.Builder.Linear.Builder
+    displayList :: [a] -> Data.Text.Builder.Linear.Builder
+    displayPrec :: GHC.Types.Int -> a -> Data.Text.Builder.Linear.Builder
+    {-# MINIMAL displayBuilder | displayPrec #-}
+    {-# MINIMAL displayBuilder | displayPrec #-}
+  type role OpaqueInstance phantom representational
+  type OpaqueInstance :: GHC.Types.Symbol -> * -> *
+  newtype OpaqueInstance str a = Opaque a
+  type RecordInstance :: * -> *
+  newtype RecordInstance a = RecordInstance {unDisplayProduct :: a}
+  type ShowInstance :: * -> *
+  newtype ShowInstance a = ShowInstance a
+  display :: forall a. Display a => a -> Data.Text.Internal.Text
+  displayParen :: GHC.Types.Bool -> Data.Text.Builder.Linear.Builder -> Data.Text.Builder.Linear.Builder
+
+module Data.Text.Display.Core where
+  type CannotDisplayBareFunctions :: Constraint
+  type family CannotDisplayBareFunctions where
+      CannotDisplayBareFunctions = (TypeError ...)
+  type CannotDisplayByteStrings :: Constraint
+  type family CannotDisplayByteStrings where
+      CannotDisplayByteStrings = (TypeError ...)
+  type Display :: * -> Constraint
+  class Display a where
+    displayBuilder :: a -> Data.Text.Builder.Linear.Builder
+    displayList :: [a] -> Data.Text.Builder.Linear.Builder
+    displayPrec :: GHC.Types.Int -> a -> Data.Text.Builder.Linear.Builder
+    {-# MINIMAL displayBuilder | displayPrec #-}
+    {-# MINIMAL displayBuilder | displayPrec #-}
+  type DisplayDecimal :: * -> *
+  newtype DisplayDecimal e = DisplayDecimal e
+  type DisplayRealFloat :: * -> *
+  newtype DisplayRealFloat e = DisplayRealFloat e
+  type role OpaqueInstance phantom representational
+  type OpaqueInstance :: GHC.Types.Symbol -> * -> *
+  newtype OpaqueInstance str a = Opaque a
+  type ShowInstance :: * -> *
+  newtype ShowInstance a = ShowInstance a
+  display :: forall a. Display a => a -> Data.Text.Internal.Text
+  displayParen :: GHC.Types.Bool -> Data.Text.Builder.Linear.Builder -> Data.Text.Builder.Linear.Builder
+
+module Data.Text.Display.Generic where
+  type Assert :: GHC.Types.Bool -> GHC.TypeError.ErrorMessage -> Constraint
+  class Assert pred msg
+    {-# MINIMAL #-}
+  type AssertNoSumRecordInstance :: (* -> Constraint) -> * -> Constraint
+  type AssertNoSumRecordInstance constraint a = Assert (Data.Type.Bool.Not (HasSum (GHC.Generics.Rep a))) (((((GHC.TypeError.Text "\128683 Cannot derive " GHC.TypeError.:<>: GHC.TypeError.ShowType constraint) GHC.TypeError.:<>: GHC.TypeError.Text " instance for ") GHC.TypeError.:<>: GHC.TypeError.ShowType a) GHC.TypeError.:<>: GHC.TypeError.Text " via RecordInstance due to sum type") GHC.TypeError.:$$: GHC.TypeError.Text "\128161 Sum types should use a manual instance or derive one via ShowInstance.") :: Constraint
+  type GDisplay1 :: (* -> *) -> Constraint
+  class GDisplay1 f where
+    gdisplayBuilder1 :: forall p. f p -> Data.Text.Builder.Linear.Builder
+    {-# MINIMAL gdisplayBuilder1 #-}
+    {-# MINIMAL gdisplayBuilder1 #-}
+  type HasSum :: (* -> *) -> GHC.Types.Bool
+  type family HasSum f where
+      HasSum GHC.Generics.V1 = GHC.Types.False
+      HasSum GHC.Generics.U1 = GHC.Types.False
+    forall i c. HasSum (GHC.Generics.K1 i c) = GHC.Types.False
+    forall i (c :: GHC.Generics.Meta) (f :: * -> *). HasSum (GHC.Generics.M1 i c f) = HasSum f
+    forall (f :: * -> *) (g :: * -> *). HasSum (f GHC.Generics.:*: g) = HasSum f Data.Type.Bool.|| HasSum g
+    forall (f :: * -> *) (g :: * -> *). HasSum (f GHC.Generics.:+: g) = GHC.Types.True
+  type RecordInstance :: * -> *
+  newtype RecordInstance a = RecordInstance {unDisplayProduct :: a}
+  gdisplayBuilderDefault :: forall a. (GHC.Generics.Generic a, GDisplay1 (GHC.Generics.Rep a)) => a -> Data.Text.Builder.Linear.Builder
+
+
+-- Instances:
+instance forall e. GHC.Enum.Enum e => GHC.Enum.Enum (Data.Text.Display.Core.DisplayDecimal e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Float.Floating e => GHC.Float.Floating (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Float.RealFloat e => GHC.Float.RealFloat (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance forall a. GHC.Generics.Generic a => GHC.Generics.Generic (Data.Text.Display.Generic.RecordInstance a) -- Defined in ‘Data.Text.Display.Generic’
+instance forall e. GHC.Num.Num e => GHC.Num.Num (Data.Text.Display.Core.DisplayDecimal e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Num.Num e => GHC.Num.Num (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Real.Fractional e => GHC.Real.Fractional (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Real.Integral e => GHC.Real.Integral (Data.Text.Display.Core.DisplayDecimal e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Real.Real e => GHC.Real.Real (Data.Text.Display.Core.DisplayDecimal e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Real.Real e => GHC.Real.Real (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Real.RealFrac e => GHC.Real.RealFrac (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance forall a. GHC.Show.Show a => GHC.Show.Show (Data.Text.Display.Core.ShowInstance a) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Classes.Eq e => GHC.Classes.Eq (Data.Text.Display.Core.DisplayDecimal e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Classes.Eq e => GHC.Classes.Eq (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Classes.Ord e => GHC.Classes.Ord (Data.Text.Display.Core.DisplayDecimal e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Classes.Ord e => GHC.Classes.Ord (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display () -- Defined in ‘Data.Text.Display.Core’
+instance forall a b. (Data.Text.Display.Core.Display a, Data.Text.Display.Core.Display b) => Data.Text.Display.Core.Display (a, b) -- Defined in ‘Data.Text.Display.Core’
+instance forall a b c. (Data.Text.Display.Core.Display a, Data.Text.Display.Core.Display b, Data.Text.Display.Core.Display c) => Data.Text.Display.Core.Display (a, b, c) -- Defined in ‘Data.Text.Display.Core’
+instance forall a b c d. (Data.Text.Display.Core.Display a, Data.Text.Display.Core.Display b, Data.Text.Display.Core.Display c, Data.Text.Display.Core.Display d) => Data.Text.Display.Core.Display (a, b, c, d) -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Types.Bool -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.CannotDisplayByteStrings => Data.Text.Display.Core.Display Data.ByteString.Lazy.Internal.LazyByteString -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.CannotDisplayByteStrings => Data.Text.Display.Core.Display bytestring-0.11.5.3:Data.ByteString.Internal.Type.StrictByteString -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Types.Char -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Real.Integral e => Data.Text.Display.Core.Display (Data.Text.Display.Core.DisplayDecimal e) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Float.RealFloat e => Data.Text.Display.Core.Display (Data.Text.Display.Core.DisplayRealFloat e) -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Types.Double -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Types.Float -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.IO.Exception.IOException -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Types.Int -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Int.Int16 -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Int.Int32 -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Int.Int64 -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Int.Int8 -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Num.Integer.Integer -- Defined in ‘Data.Text.Display.Core’
+instance forall a. Data.Text.Display.Core.Display a => Data.Text.Display.Core.Display [a] -- Defined in ‘Data.Text.Display.Core’
+instance forall a. Data.Text.Display.Core.Display a => Data.Text.Display.Core.Display (GHC.Maybe.Maybe a) -- Defined in ‘Data.Text.Display.Core’
+instance forall a. Data.Text.Display.Core.Display a => Data.Text.Display.Core.Display (GHC.Base.NonEmpty a) -- Defined in ‘Data.Text.Display.Core’
+instance forall (str :: GHC.Types.Symbol) a. GHC.TypeLits.KnownSymbol str => Data.Text.Display.Core.Display (Data.Text.Display.Core.OpaqueInstance str a) -- Defined in ‘Data.Text.Display.Core’
+instance forall e. GHC.Show.Show e => Data.Text.Display.Core.Display (Data.Text.Display.Core.ShowInstance e) -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Exception.Type.SomeException -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display Data.Text.Internal.Text -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display Data.Text.Internal.Lazy.Text -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Base.Void -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Types.Word -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Word.Word16 -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Word.Word32 -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Word.Word64 -- Defined in ‘Data.Text.Display.Core’
+instance Data.Text.Display.Core.Display GHC.Word.Word8 -- Defined in ‘Data.Text.Display.Core’
+instance forall a. (Data.Text.Display.Generic.AssertNoSumRecordInstance Data.Text.Display.Core.Display a, GHC.Generics.Generic a, Data.Text.Display.Generic.GDisplay1 (GHC.Generics.Rep a)) => Data.Text.Display.Core.Display (Data.Text.Display.Generic.RecordInstance a) -- Defined in ‘Data.Text.Display.Generic’
+instance forall (msg :: GHC.TypeError.ErrorMessage). ((TypeError ...) ~ '()) => Data.Text.Display.Generic.Assert GHC.Types.False msg -- Defined in ‘Data.Text.Display.Generic’
+instance forall (msg :: GHC.TypeError.ErrorMessage). Data.Text.Display.Generic.Assert GHC.Types.True msg -- Defined in ‘Data.Text.Display.Generic’

@@ -36,17 +36,27 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: 'latest'
-      - name: Configure
-        run: cabal configure --enable-tests
       - name: Freeze
-        run: cabal freeze
+        run: cabal freeze --project-file=cabal.ci.project
       - name: Cache
         uses: actions/cache@v4.0.2
         with:
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
           key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-cabal-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ runner.os }}-ghc-${{ matrix.ghc }}-
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: '0.4.40'
+      - run: make docs
       - name: Build
-        run: cabal new-build
+        run: cabal build --project-file=cabal.ci.project --write-ghc-environment-files=always
       - name: Test
-        run: cabal new-test all
+        run: cabal test --project-file=cabal.ci.project all
+      - name: API Golden tests
+        uses: kleidukos/diff-package-api@v0.1.0.1
+        with:
+          package-name: text-display
+          expected-interface: test/package-api-${{ matrix.ghc }}.txt
+          ghc: ${{ matrix.ghc }}
+          version: 0.1.0.1
