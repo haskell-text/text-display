@@ -86,7 +86,7 @@ executable book
     buildable: False
 
   build-depends:
-    , base
+    , base >=4.12 && <5.0
     , directory
     , literatex
     , shake
@@ -99,7 +99,7 @@ test-suite text-display-test
   main-is:        Main.hs
   hs-source-dirs: test
   build-depends:
-    , base
+    , base >=4.12 && <5.0
     , quickcheck-text
     , tasty
     , tasty-hunit
