@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [v1.0.0.0] - 21/07/2024
+## [v1.0.0.0] - 05/01/2024
 
 * Remove support for GHC 8.10 to 9.0 inclusive
 * `text-display` is now backed by [`text-builder-linear`](https://flora.pm/packages/@hackage/text-builder-linear)
