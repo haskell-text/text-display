@@ -39,7 +39,7 @@ jobs:
       - name: Freeze
         run: cabal freeze --project-file=cabal.ci.project
       - name: Cache
-        uses: actions/cache@v4.2.1
+        uses: actions/cache@v4.2.2
         with:
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
           key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-cabal-${{ hashFiles('**/plan.json') }}
