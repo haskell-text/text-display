@@ -1,0 +1,31 @@
+name: GHC Nightly
+
+# Trigger the workflow on push or pull request, but only for the main branch
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  tests:
+    name: Tests on GHC Nightly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: haskell/ghcup-setup@v1
+      - name: Setup GHC Nightly
+        run: |
+          ghcup config add-release-channel https://ghc.gitlab.haskell.org/ghcup-metadata/ghcup-nightlies-2025-0.0.7.yaml
+          ghcup install ghc latest-nightly
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: '0.4.40'
+      - run: make docs
+      - name: Build
+        continue-on-error: true
+        run: |
+          cabal update
+          cabal build --allow-newer --project-file=cabal.ci.project
+      - name: Test
+        run: cabal test --project-file=cabal.ci.project all
