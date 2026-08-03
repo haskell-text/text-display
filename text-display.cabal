@@ -32,11 +32,7 @@ extra-doc-files:
   ./doc/book/searchindex.json
   CHANGELOG.md
 
-tested-with:
-  GHC ==9.6.6
-   || ==9.8.4
-   || ==9.10.1
-   || ==9.12.1
+tested-with:        GHC ==9.6.6 || ==9.8.4 || ==9.10.1 || ==9.12.1
 
 flag book
   description: Enable the generation of the book
@@ -86,7 +82,7 @@ executable book
     buildable: False
 
   build-depends:
-    , base >=4.12 && <5.0
+    , base       >=4.12 && <5.0
     , directory
     , literatex
     , shake
@@ -99,7 +95,7 @@ test-suite text-display-test
   main-is:        Main.hs
   hs-source-dirs: test
   build-depends:
-    , base >=4.12 && <5.0
+    , base                 >=4.12 && <5.0
     , quickcheck-text
     , tasty
     , tasty-hunit
